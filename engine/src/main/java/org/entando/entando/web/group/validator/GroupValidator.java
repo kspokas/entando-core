@@ -31,6 +31,9 @@ public class GroupValidator implements Validator {
 		if (null != groupManager.getGroup(groupName)) {
 			//errors.reject -->  equivale ad un global error
 			//errors.errors.rejectValue -->  equivale ad un field error
+			System.out.println("*********************************************");
+			System.out.println(groupName);
+			System.out.println("*********************************************");
 			errors.reject("1", new String[] { groupName }, "group.exists");
 		}
 	}
