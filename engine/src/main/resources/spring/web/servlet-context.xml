@@ -90,20 +90,5 @@
 </beans>
 
 
-<!-- 
-	<context:component-scan base-package="org.entando.entando.web.*" />
-	<mvc:annotation-driven>
-		<mvc:message-converters>
-			<bean
-				class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-				<property name="objectMapper" ref="entandoObjectMapper" />
-			</bean>
-		</mvc:message-converters>
-	</mvc:annotation-driven>
-
-
-	<bean id="entandoObjectMapper" class="org.entando.entando.web.config.EntandoObjectMapper"></bean>
- -->
-
 
 

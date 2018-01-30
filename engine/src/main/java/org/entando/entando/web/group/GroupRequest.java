@@ -2,21 +2,23 @@ package org.entando.entando.web.group;
 
 import javax.validation.constraints.NotNull;
 
-public class GroupRequest {
+/**
+ * rappresenta il payload per l'add (post)
+ *
+ */
+public class GroupRequest extends SimpleGroupRequest {
 
 	@NotNull(message = "NotBlank.group.name")
 	private String name;
 
-	@NotNull(message = "NotBlank.group.descr")
-	private String descr;
 
 	public GroupRequest() {
 
 	}
 
 	public GroupRequest(String name, String descr) {
+		super(descr);
 		this.name = name;
-		this.descr = descr;
 	}
 
 
@@ -26,14 +28,6 @@ public class GroupRequest {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getDescr() {
-		return descr;
-	}
-
-	public void setDescr(String descr) {
-		this.descr = descr;
 	}
 
 }

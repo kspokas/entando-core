@@ -2,6 +2,11 @@ package org.entando.entando.web.group.model;
 
 import com.agiletec.aps.system.services.group.Group;
 
+/**
+ * Rappresentazione REST dell'oggetto GROUP
+ *
+ * 
+ */
 public class GroupDto {
 
 	private String code;

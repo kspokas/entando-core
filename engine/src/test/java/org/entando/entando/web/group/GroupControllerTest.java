@@ -1,5 +1,7 @@
 package org.entando.entando.web.group;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -8,6 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
@@ -56,6 +59,7 @@ public class GroupControllerTest {
 	@Mock
 	private GroupManager groupManager;
 
+	@Autowired
 	@InjectMocks
 	private GroupController groupController;
 
@@ -72,7 +76,6 @@ public class GroupControllerTest {
 		//mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
 		createMockGroups();
 	}
-
 
 	@Rollback
 	@After
@@ -100,9 +103,10 @@ public class GroupControllerTest {
 
 		ResultActions result = mockMvc
 				.perform(put("/group/{groupName}", "GROUP_0").content(json).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
-		result.andExpect(status().isOk());
+
 		String response = result.andReturn().getResponse().getContentAsString();
 		System.out.println(response);
+		result.andExpect(status().isOk());
 	}
 
 	@Test
@@ -114,13 +118,13 @@ public class GroupControllerTest {
 		GroupRequest request = new GroupRequest("GRUPPO_LOL", "lol");
 		String json = objectMapper.writeValueAsString(request);
 		ResultActions result = mockMvc.perform(post("/groups").content(json).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
-		result.andExpect(status().isOk());
 		String response = result.andReturn().getResponse().getContentAsString();
 		System.out.println(response);
+		result.andExpect(status().isOk());
 	}
 
 	@Test
-	public void should_validate_add_group() throws Exception {
+	public void should_validate_add_group_empty_fields() throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
 		when(groupManager.getGroup(anyString())).thenReturn(mockGroups.get(0));
 		doNothing().when(groupManager).updateGroup((Group) anyObject());
@@ -131,8 +135,30 @@ public class GroupControllerTest {
 		String response = result.andReturn().getResponse().getContentAsString();
 		System.out.println(response);
 		result.andExpect(status().isBadRequest());
+
+		// @formatter:off
+		result
+		.andExpect(jsonPath("$.errors", hasSize(2)))
+		.andExpect(jsonPath("$.errors[*].message", containsInAnyOrder(
+                "Description is required",
+                "Name is required"
+        )));                
+		// @formatter:on
+
 	}
 
+	@Test
+	public void should_validate_add_group_existing_code() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper();
+		when(groupManager.getGroup(anyString())).thenReturn(mockGroups.get(0));
+
+		GroupRequest request = new GroupRequest(mockGroups.get(0).getName(), mockGroups.get(0).getDescription());
+		String json = objectMapper.writeValueAsString(request);
+		ResultActions result = mockMvc.perform(post("/groups").content(json).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+		String response = result.andReturn().getResponse().getContentAsString();
+		System.out.println(response);
+		result.andExpect(status().isConflict());
+	}
 
 	@Test
 	public void should_delete_group() throws Exception {

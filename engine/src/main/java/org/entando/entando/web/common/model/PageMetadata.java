@@ -1,4 +1,4 @@
-package org.entando.entando.web.common;
+package org.entando.entando.web.common.model;
 
 public class PageMetadata {
 
