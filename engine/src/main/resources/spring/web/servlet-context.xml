@@ -47,7 +47,7 @@
 		class="org.springframework.context.support.ResourceBundleMessageSource">
 		<property name="useCodeAsDefaultMessage" value="true" />
 		<property name="basename">
-			<value>entando/messages</value>
+			<value>rest/messages</value>
 		</property>
 		<property name="fallbackToSystemLocale" value="true" />
 	</bean>

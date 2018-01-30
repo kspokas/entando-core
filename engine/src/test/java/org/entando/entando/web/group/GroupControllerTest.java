@@ -130,7 +130,7 @@ public class GroupControllerTest {
 		ResultActions result = mockMvc.perform(post("/groups").content(json).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 		String response = result.andReturn().getResponse().getContentAsString();
 		System.out.println(response);
-		result.andExpect(status().isOk());
+		result.andExpect(status().isBadRequest());
 	}
 
 
