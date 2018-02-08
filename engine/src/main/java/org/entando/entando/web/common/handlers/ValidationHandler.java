@@ -33,90 +33,88 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class ValidationHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(ValidationHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ValidationHandler.class);
 
-	@Autowired
-	private MessageSource messageSource;
+    @Autowired
+    private MessageSource messageSource;
 
+    @ExceptionHandler(value = ValidationConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse processValidationError(ValidationConflictException ex) {
+        logger.debug("Handling ValidationException error");
+        BindingResult result = ex.getBindingResult();
+        RestResponse response = processAllErrors(result);
+        return response;
+    }
 
-	@ExceptionHandler(value = ValidationConflictException.class)
-	@ResponseStatus(HttpStatus.CONFLICT)
-	@ResponseBody
-	public RestResponse processValidationError(ValidationConflictException ex) {
-		logger.debug("Handling ValidationException error");
-		BindingResult result = ex.getBindingResult();
-		RestResponse response = processAllErrors(result);
-		return response;
-	}
+    @ExceptionHandler(value = ValidationGenericException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse processValidationError(ValidationGenericException ex) {
+        logger.debug("Handling ValidationException error");
+        BindingResult result = ex.getBindingResult();
+        RestResponse response = processAllErrors(result);
+        return response;
+    }
 
-	@ExceptionHandler(value = ValidationGenericException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	@ResponseBody
-	public RestResponse processValidationError(ValidationGenericException ex) {
-		logger.debug("Handling ValidationException error");
-		BindingResult result = ex.getBindingResult();
-		RestResponse response = processAllErrors(result);
-		return response;
-	}
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse processValidationError(MethodArgumentNotValidException ex) {
+        logger.debug("Handling MethodArgumentNotValidException error");
+        BindingResult result = ex.getBindingResult();
+        RestResponse response = processAllErrors(result);
+        return response;
+    }
 
-	@ExceptionHandler(value = MethodArgumentNotValidException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	@ResponseBody
-	public RestResponse processValidationError(MethodArgumentNotValidException ex) {
-		logger.debug("Handling MethodArgumentNotValidException error");
-		BindingResult result = ex.getBindingResult();
-		RestResponse response = processAllErrors(result);
-		return response;
-	}
+    private RestResponse processAllErrors(BindingResult result) {
+        return processAllErrors(result.getFieldErrors(), result.getGlobalErrors());
+    }
 
+    private RestResponse processAllErrors(List<FieldError> fieldErrors, List<ObjectError> objectErrors) {
+        RestResponse dto = new RestResponse();
+        processFieldErrors(dto, fieldErrors);
+        processGlobalErrors(dto, objectErrors);
+        return dto;
+    }
 
-	private RestResponse processAllErrors(BindingResult result) {
-		return processAllErrors(result.getFieldErrors(), result.getGlobalErrors());
-	}
+    private RestResponse processFieldErrors(RestResponse dto, List<FieldError> fieldErrors) {
+        if (null != fieldErrors) {
+            List<RestError> errors = new ArrayList<>();
+            for (FieldError fieldError : fieldErrors) {
+                String localizedErrorMessage = resolveLocalizedErrorMessage(fieldError);
+                errors.add(new RestError(null, localizedErrorMessage));
+            }
+            dto.addErrors(errors);
+        }
+        return dto;
+    }
 
-	private RestResponse processAllErrors(List<FieldError> fieldErrors, List<ObjectError> objectErrors) {
-		RestResponse dto = new RestResponse();
-		processFieldErrors(dto, fieldErrors);
-		processGlobalErrors(dto, objectErrors);
-		return dto;
-	}
+    private RestResponse processGlobalErrors(RestResponse dto, List<ObjectError> globalErrors) {
+        if (null != globalErrors) {
+            List<RestError> errors = new ArrayList<>();
+            for (ObjectError globalError : globalErrors) {
+                String localizedErrorMessage = resolveLocalizedErrorMessage(globalError);
+                errors.add(new RestError(globalError.getCode(), localizedErrorMessage));
+            }
+            dto.addErrors(errors);
+        }
+        return dto;
+    }
 
-	private RestResponse processFieldErrors(RestResponse dto, List<FieldError> fieldErrors) {
-		if (null != fieldErrors) {
-			List<RestError> errors = new ArrayList<>();
-			for (FieldError fieldError : fieldErrors) {
-				String localizedErrorMessage = resolveLocalizedErrorMessage(fieldError);
-				errors.add(new RestError(null, localizedErrorMessage));
-			}
-			dto.addErrors(errors);
-		}
-		return dto;
-	}
+    /**
+     * prova ad utilizzare il default message, altrimenti va sul default di
+     * hibernate
+     *
+     * @param fieldError
+     * @return
+     */
+    private String resolveLocalizedErrorMessage(DefaultMessageSourceResolvable fieldError) {
+        Locale currentLocale = LocaleContextHolder.getLocale();
+        String msgCode = StringUtils.isNotBlank(fieldError.getDefaultMessage()) ? fieldError.getDefaultMessage() : fieldError.getCode();
+        String localizedErrorMessage = messageSource.getMessage(msgCode, fieldError.getArguments(), currentLocale);
+        return localizedErrorMessage;
 
-	private RestResponse processGlobalErrors(RestResponse dto, List<ObjectError> globalErrors) {
-		if (null != globalErrors) {
-			List<RestError> errors = new ArrayList<>();
-			for (ObjectError globalError : globalErrors) {
-				String localizedErrorMessage = resolveLocalizedErrorMessage(globalError);
-				errors.add(new RestError(globalError.getCode(), localizedErrorMessage));
-			}
-			dto.addErrors(errors);
-		}
-		return dto;
-	}
-
-	/**
-	 * prova ad utilizzare il default message, altrimenti va sul default di
-	 * hibernate
-	 * 
-	 * @param fieldError
-	 * @return
-	 */
-	private String resolveLocalizedErrorMessage(DefaultMessageSourceResolvable fieldError) {
-		Locale currentLocale = LocaleContextHolder.getLocale();
-		String msgCode = StringUtils.isNotBlank(fieldError.getDefaultMessage()) ? fieldError.getDefaultMessage() : fieldError.getCode();
-		String localizedErrorMessage = messageSource.getMessage(msgCode, fieldError.getArguments(), currentLocale);
-		return localizedErrorMessage;
-
-	}
+    }
 }

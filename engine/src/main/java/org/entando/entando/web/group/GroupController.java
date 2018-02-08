@@ -41,7 +41,7 @@ public class GroupController {
 	private GroupValidator groupValidator;
 
 
-	@RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> getGroups() {
 		List<Group> groups = groupManager.getGroups();
 		List<GroupDto> dtoList = new GroupsDtoBuilder(groups).build();
@@ -49,7 +49,7 @@ public class GroupController {
 	}
 
 
-	@RequestMapping(value = "/group/{groupName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/group/{groupName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> getGroup(@PathVariable String groupName) {
 		Group group = this.groupManager.getGroup(groupName);
 		GroupDto dto = new GroupDtoBuilder(group).build();
@@ -57,14 +57,14 @@ public class GroupController {
 	}
 
 	//TODO validation 
-	@RequestMapping(value = "/group/{groupName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/group/{groupName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> updateGroup(@PathVariable String groupName, @Valid @RequestBody SimpleGroupRequest groupRequest) {
 		Group group = this.groupManager.getGroup(groupName);
 		GroupDto dto = new GroupDtoBuilder(group).build();
 		return new ResponseEntity<>(new RestResponse(dto), HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> addGroup(@Valid @RequestBody GroupRequest groupRequest, BindingResult bindingResult) throws ApsSystemException {
 		
 		//validazioni formali
@@ -85,7 +85,7 @@ public class GroupController {
 	}
 
 
-	@RequestMapping(value = "/groups/{groupName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/groups/{groupName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> deleteGroup(@PathVariable String groupName) throws ApsSystemException {
 		logger.info("deleting {}", groupName);
 		Group group = this.groupManager.getGroup(groupName);

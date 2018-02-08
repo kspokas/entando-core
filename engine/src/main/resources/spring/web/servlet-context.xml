@@ -18,10 +18,11 @@
 
 	<!-- scans for annotated classes -->
 	<context:component-scan base-package="org.entando.entando.web.*" />
+        <context:annotation-config/> 
 
 	<mvc:annotation-driven conversion-service="conversionService">
 		<mvc:message-converters>
-			<bean
+			<bean id="jacksonMessageConverter" name="jacksonMessageConverter"
 				class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" >
 				<property name="supportedMediaTypes">
 					<list>
@@ -86,7 +87,7 @@
 			</set>
 		</property>
 	</bean>
-
+        
 </beans>
 
 
