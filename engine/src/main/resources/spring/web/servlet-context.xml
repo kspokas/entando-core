@@ -87,7 +87,9 @@
 			</set>
 		</property>
 	</bean>
-        
+        <mvc:interceptors>
+            <bean id="entandoInterceptor" class="org.entando.entando.web.common.interceptor.EntandoOauth2Interceptor" />
+        </mvc:interceptors>
 </beans>
 
 
