@@ -2,6 +2,8 @@ package org.entando.entando.aps.servlet;
 
 import com.agiletec.aps.system.SystemConstants;
 import com.agiletec.aps.system.exception.ApsSystemException;
+import com.agiletec.aps.system.services.user.IUserManager;
+import com.agiletec.aps.system.services.user.UserDetails;
 import com.agiletec.aps.util.ApsWebApplicationUtils;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
@@ -19,7 +21,6 @@ import org.entando.entando.aps.system.services.oauth2.IOAuthConsumerManager;
 import org.entando.entando.aps.system.services.oauth2.model.OAuth2Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +33,6 @@ public class TokenEndpointServlet extends HttpServlet {
 
     private static final Logger _logger = LoggerFactory.getLogger(TokenEndpointServlet.class);
     private static final String ERROR_AUTHENTICATION_FAILED = "OAuth2 authentication failed";
-
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -51,9 +51,9 @@ public class TokenEndpointServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ERROR_AUTHENTICATION_FAILED);
             }
 
-
         } catch (Throwable e) {
             _logger.error("OAuthSystemException exception {} ", e.getMessage());
+            e.printStackTrace();
             try {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             } catch (IOException e1) {
@@ -95,19 +95,18 @@ public class TokenEndpointServlet extends HttpServlet {
 
     }
 
-
     private OAuthResponse validateClientWithAuthorizationCode(HttpServletRequest request) throws Throwable {
         try {
 
             final OAuthTokenRequest oauthRequest = new OAuthTokenRequest(request);
-            IOAuthConsumerManager consumerManager = (IOAuthConsumerManager) ApsWebApplicationUtils.getBean(SystemConstants.OAUTH_CONSUMER_MANAGER, request);
-            IApiOAuthorizationCodeManager codeManager = (IApiOAuthorizationCodeManager) ApsWebApplicationUtils.getBean(SystemConstants.OAUTH2_AUTHORIZATION_CODE_MANAGER, request);
-
 
             if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE)
-                    .equals(GrantType.AUTHORIZATION_CODE.toString()) ||
-                    oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE)
+                    .equals(GrantType.AUTHORIZATION_CODE.toString())
+                    || oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE)
                             .equals(GrantType.REFRESH_TOKEN.toString())) {
+
+                IOAuthConsumerManager consumerManager = (IOAuthConsumerManager) ApsWebApplicationUtils.getBean(SystemConstants.OAUTH_CONSUMER_MANAGER, request);
+                IApiOAuthorizationCodeManager codeManager = (IApiOAuthorizationCodeManager) ApsWebApplicationUtils.getBean(SystemConstants.OAUTH2_AUTHORIZATION_CODE_MANAGER, request);
 
                 final String clientId = oauthRequest.getClientId();
                 final String oauthType = GrantType.AUTHORIZATION_CODE.toString();
@@ -124,11 +123,26 @@ public class TokenEndpointServlet extends HttpServlet {
                     return null;
                 }
                 return this.registerToken(request, clientId, oauthType, null);
+            } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE)
+                    .equals(GrantType.PASSWORD.toString())) {
+
+                final String username = oauthRequest.getUsername();
+                final String password = oauthRequest.getPassword();
+                final String oauthType = GrantType.PASSWORD.toString();
+
+                IUserManager userManager = (IUserManager) ApsWebApplicationUtils.getBean(SystemConstants.USER_MANAGER, request);
+                UserDetails user = userManager.getUser(username, password);
+
+                if (user == null) {
+                    _logger.error(ERROR_AUTHENTICATION_FAILED);
+                    return null;
+                }
+                return this.registerToken(request, username, oauthType, null);
             } else {
                 return null;
             }
         } catch (OAuthSystemException e) {
-            _logger.error("OAuthSystemException - {} ", e);
+            _logger.error("OAuthSystemException - {} ", e.getMessage());
             return null;
         } catch (OAuthProblemException e) {
             _logger.error("OAuthProblemException - {} ", e.getError().concat(" ").concat(e.getDescription()));
@@ -137,6 +151,5 @@ public class TokenEndpointServlet extends HttpServlet {
         }
 
     }
-
 
 }

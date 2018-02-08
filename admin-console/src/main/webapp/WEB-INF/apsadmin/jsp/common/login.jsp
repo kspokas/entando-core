@@ -190,7 +190,8 @@
                 username: username,
                 password: password,
                 grant_type: 'password',
-                client_id: 'LOCAL_USER'
+                client_id: 'LOCAL_USER',
+                client_secret: 'USER_SECRET'
             };
             return $.ajax(url,{
                 data : oauthData,
