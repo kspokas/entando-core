@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
+import org.entando.entando.web.common.exceptions.EntandoAuthorizationException;
 import org.entando.entando.web.common.exceptions.ValidationConflictException;
 import org.entando.entando.web.common.exceptions.ValidationGenericException;
 import org.entando.entando.web.common.model.RestError;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * in una {@link RestResponse} con status e payload customizzabile
  *
  */
+//TODO RENAME
 @ControllerAdvice
 public class ValidationHandler {
 
@@ -37,6 +39,19 @@ public class ValidationHandler {
 
     @Autowired
     private MessageSource messageSource;
+
+    @ExceptionHandler(value = EntandoAuthorizationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public RestResponse processEntandoAuthorizationException(EntandoAuthorizationException ex) {
+        logger.debug("Handling {} error", ex.getClass().getSimpleName());
+        RestResponse response = new RestResponse();
+        RestError error = new RestError("101", this.resolveLocalizedErrorMessage("UNAUTHORIZED", new Object[]{ex.getUsername(), ex.getRequestURI(), ex.getMethod()}));
+        List<RestError> errors = new ArrayList<>();
+        errors.add(error);
+        response.setErrors(errors);
+        return response;
+    }
 
     @ExceptionHandler(value = ValidationConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -113,8 +128,21 @@ public class ValidationHandler {
     private String resolveLocalizedErrorMessage(DefaultMessageSourceResolvable fieldError) {
         Locale currentLocale = LocaleContextHolder.getLocale();
         String msgCode = StringUtils.isNotBlank(fieldError.getDefaultMessage()) ? fieldError.getDefaultMessage() : fieldError.getCode();
-        String localizedErrorMessage = messageSource.getMessage(msgCode, fieldError.getArguments(), currentLocale);
+        String localizedErrorMessage = getMessageSource().getMessage(msgCode, fieldError.getArguments(), currentLocale);
         return localizedErrorMessage;
+    }
 
+    private String resolveLocalizedErrorMessage(String code, Object[] args) {
+        Locale currentLocale = LocaleContextHolder.getLocale();
+        String localizedErrorMessage = getMessageSource().getMessage(code, args, currentLocale);
+        return localizedErrorMessage;
+    }
+
+    public MessageSource getMessageSource() {
+        return messageSource;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
     }
 }

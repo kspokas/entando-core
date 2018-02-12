@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.agiletec.aps.system.exception.ApsSystemException;
+import com.agiletec.aps.system.services.group.Group;
+import com.agiletec.aps.system.services.group.IGroupManager;
 import org.entando.entando.web.common.exceptions.ValidationConflictException;
 import org.entando.entando.web.common.exceptions.ValidationGenericException;
 import org.entando.entando.web.common.model.PageMetadata;
@@ -25,23 +28,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.agiletec.aps.system.exception.ApsSystemException;
-import com.agiletec.aps.system.services.group.Group;
-import com.agiletec.aps.system.services.group.GroupManager;
-
 @RestController
 public class GroupController {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private GroupManager groupManager;
+    private IGroupManager groupManager;
 
 	@Autowired
 	private GroupValidator groupValidator;
 
 
-	@RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
+    //@Permissions("read_")
+    @RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, name = "group_read")
 	public ResponseEntity<?> getGroups() {
 		List<Group> groups = groupManager.getGroups();
 		List<GroupDto> dtoList = new GroupsDtoBuilder(groups).build();
@@ -72,6 +72,7 @@ public class GroupController {
 			throw new ValidationGenericException(bindingResult);
 		}
 		
+        //----
 		//validazioni applicative
 		groupValidator.validate(groupRequest, bindingResult);
 		if (bindingResult.hasErrors()) {

@@ -11,8 +11,6 @@ public class EntandoObjectMapper extends ObjectMapper {
 
 	public EntandoObjectMapper() {
 		this.configure(SerializationFeature.INDENT_OUTPUT, true);
-		//this.setMixInAnnotations(sourceMixins);
-		//this.addMixInAnnotations(Role.class, RoleMixin.class);
 	}
 	
 	public Map<Class<?>, Class<?>> getSourceMixins() {

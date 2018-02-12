@@ -47,7 +47,7 @@ public class RestResponse {
 	}
 
 	public void addErrors(List<RestError> errors) {
-		this.errors.addAll(errors);
+        this.errors.addAll(errors);
 
 	}
 

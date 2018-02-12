@@ -1,12 +1,11 @@
 package org.entando.entando.web.group.validator;
 
+import com.agiletec.aps.system.services.group.IGroupManager;
 import org.entando.entando.web.group.GroupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
-import com.agiletec.aps.system.services.group.IGroupManager;
 
 /**
  * Validazioni applicative o complesse (non realiz<zabili tramite annotations
@@ -29,8 +28,6 @@ public class GroupValidator implements Validator {
 		GroupRequest request = (GroupRequest) target;
 		String groupName = request.getName();
 		if (null != groupManager.getGroup(groupName)) {
-			//errors.reject -->  equivale ad un global error
-			//errors.errors.rejectValue -->  equivale ad un field error
 			System.out.println("*********************************************");
 			System.out.println(groupName);
 			System.out.println("*********************************************");

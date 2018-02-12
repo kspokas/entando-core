@@ -24,5 +24,23 @@
 	<bean id="GroupManager" class="org.mockito.Mockito" factory-method="mock">
 		<constructor-arg value="com.agiletec.aps.system.services.group.GroupManager" />
 	</bean>
+
+	<bean id="UserManager" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="com.agiletec.aps.system.services.user.UserManager" />
+	</bean>
+	
+	<bean id="AuthorizationManager" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="com.agiletec.aps.system.services.authorization.AuthorizationManager" />
+	</bean>
+	
+	<bean id="AuthenticationProviderManager"  class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="com.agiletec.aps.system.services.user.AuthenticationProviderManager" />
+	</bean>
+
+		
+	<bean id="OAuth2TokenManager" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="org.entando.entando.aps.system.services.oauth2.ApiOAuth2TokenManager" />
+	</bean>
+
 	
 </beans>
