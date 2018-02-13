@@ -18,18 +18,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.agiletec.aps.system.common.AbstractSearcherDAO;
+import com.agiletec.aps.system.common.FieldSearchFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.agiletec.aps.system.common.AbstractDAO;
 
 /**
  * Data Access Object per gli oggetti Group. 
  * @author E.Santoboni
  */
-public class GroupDAO extends AbstractDAO implements IGroupDAO {
+public class GroupDAO extends AbstractSearcherDAO implements IGroupDAO {
 
 	private static final Logger _logger =  LoggerFactory.getLogger(GroupDAO.class);
 	
@@ -145,41 +146,10 @@ public class GroupDAO extends AbstractDAO implements IGroupDAO {
 			closeDaoResources(null, stat, conn);
 		}
 	}
-	/*
-	@Override
-	protected String getLoadAuthsForUserQuery() {
-		return SELECT_GROUPS_FOR_USER;
-	}
-	
-	@Override
-	protected String getAddUserAuthorizationQuery() {
-		return ADD_USER_GROUP;
-	}
-	
-	@Override
-	protected String getRemoveUserAuthorizationQuery() {
-		return REMOVE_USER_GROUP;
-	}
-	
-	@Override
-	protected String getRemoveUserAuthorizationsQuery() {
-		return REMOVE_USER_GROUPS;
-	}
-	
-	@Override
-	protected String getUserAuthorizatedQuery() {
-		return SELECT_USERS_FOR_GROUP;
-	}
-	*/
+
 	private final String ALL_GROUPS =
 		"SELECT groupname, descr FROM authgroups";
-	/*
-	private final String SELECT_GROUPS_FOR_USER =
-		"SELECT groupname FROM authusergroups WHERE username = ? ";
-	
-	private final String SELECT_USERS_FOR_GROUP =
-		"SELECT username FROM authusergroups WHERE groupname = ? ";
-	*/
+
 	private final String DELETE_GROUP =
 		"DELETE FROM authgroups WHERE groupname = ? ";
 	
@@ -188,15 +158,39 @@ public class GroupDAO extends AbstractDAO implements IGroupDAO {
 	
 	private final String UPDATE_GROUP =
 		"UPDATE authgroups SET descr= ? WHERE groupname = ? ";	
-	/*
-	private final String ADD_USER_GROUP =
-		"INSERT INTO authusergroups (username, groupname) VALUES ( ? , ? )";
+
 	
-	private final String REMOVE_USER_GROUP =
-		"DELETE FROM authusergroups WHERE username = ? AND groupname = ? ";
 	
-	private final String REMOVE_USER_GROUPS =
-		"DELETE FROM authusergroups WHERE username = ? ";
-	*/
+    @Override
+    public List<String> searchGroups(FieldSearchFilter[] filters) {
+        List<String> groupsNames = null;
+        try {
+            groupsNames = super.searchId(filters);
+        } catch (Throwable t) {
+            _logger.error("error in search groups", t);
+            throw new RuntimeException("error in search groups", t);
+        }
+        return groupsNames;
+    }
+
+    @Override
+    protected String getTableFieldName(String metadataFieldKey) {
+        return metadataFieldKey;
+    }
+
+    @Override
+    protected String getMasterTableName() {
+        return "authgroups";
+    }
+
+    @Override
+    protected String getMasterTableIdFieldName() {
+        return "groupname";
+    }
+
+    @Override
+    protected boolean isForceCaseInsensitiveLikeSearch() {
+        return true;
+    }
 	
 }

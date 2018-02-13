@@ -1,16 +1,23 @@
 package org.entando.entando.web.common.model;
 
-public class PageMetadata {
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public class PagedMetadata<T> {
 
 	private int page;
 	private int size;
 	private int last;
 
-	public PageMetadata() {
+    @JsonIgnore
+	private List<T> body;
+
+    public PagedMetadata() {
 		//
 	}
 
-	public PageMetadata(int page, int size, int last) {
+    public PagedMetadata(int page, int size, int last) {
 		this.page = page;
 		this.size = size;
 		this.last = last;
@@ -39,5 +46,13 @@ public class PageMetadata {
 	public void setLast(int last) {
 		this.last = last;
 	}
+
+    public List<T> getBody() {
+        return body;
+    }
+
+    public void setBody(List<T> body) {
+        this.body = body;
+    }
 
 }

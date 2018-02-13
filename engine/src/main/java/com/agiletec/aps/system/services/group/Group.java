@@ -13,9 +13,9 @@
  */
 package com.agiletec.aps.system.services.group;
 
-import com.agiletec.aps.system.services.authorization.AbstractAuthority;
-
 import java.io.Serializable;
+
+import com.agiletec.aps.system.services.authorization.AbstractAuthority;
 
 /**
  * Rappresentazione di un'oggetto "Gruppo".
@@ -70,5 +70,10 @@ public class Group extends AbstractAuthority implements Serializable {
 	 * Nome del gruppo "Ad accesso libero".
 	 */
 	public static final String FREE_GROUP_NAME = "free";
+
+    @Override
+    public String toString() {
+        return "Group [getName()=" + getName() + ", getDescription()=" + getDescription() + "]";
+    }
 	
 }

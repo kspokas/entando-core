@@ -1,7 +1,5 @@
 package org.entando.entando.web.group;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import com.agiletec.aps.system.exception.ApsSystemException;
@@ -9,11 +7,10 @@ import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.group.IGroupManager;
 import org.entando.entando.web.common.exceptions.ValidationConflictException;
 import org.entando.entando.web.common.exceptions.ValidationGenericException;
-import org.entando.entando.web.common.model.PageMetadata;
+import org.entando.entando.web.common.model.PagedMetadata;
 import org.entando.entando.web.common.model.RestResponse;
 import org.entando.entando.web.group.model.GroupDto;
 import org.entando.entando.web.group.model.GroupDtoBuilder;
-import org.entando.entando.web.group.model.GroupsDtoBuilder;
 import org.entando.entando.web.group.validator.GroupValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +31,9 @@ public class GroupController {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
+    private IGroupService groupService;
+
+    @Autowired
     private IGroupManager groupManager;
 
 	@Autowired
@@ -42,10 +42,10 @@ public class GroupController {
 
     //@Permissions("read_")
     @RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, name = "group_read")
-	public ResponseEntity<?> getGroups() {
-		List<Group> groups = groupManager.getGroups();
-		List<GroupDto> dtoList = new GroupsDtoBuilder(groups).build();
-		return new ResponseEntity<>(new RestResponse(dtoList, null, new PageMetadata(1, 3, 3)), HttpStatus.OK);
+    public ResponseEntity<?> getGroups(RestRequestRequestMetadata requestList) {
+
+        PagedMetadata<GroupDto> result = getGroupService().getGroups(requestList);
+        return new ResponseEntity<>(new RestResponse(result.getBody(), null, result), HttpStatus.OK);
 	}
 
 
@@ -101,5 +101,15 @@ public class GroupController {
 		group.setDescription(groupRequest.getDescr());
 		return group;
 	}
+
+
+    public IGroupService getGroupService() {
+        return groupService;
+    }
+
+
+    public void setGroupService(IGroupService groupService) {
+        this.groupService = groupService;
+    }
 
 }

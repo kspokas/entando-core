@@ -17,12 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.agiletec.aps.system.common.AbstractService;
+import com.agiletec.aps.system.common.FieldSearchFilter;
+import com.agiletec.aps.system.exception.ApsSystemException;
+import com.agiletec.aps.system.services.group.cache.IGroupManagerCacheWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.agiletec.aps.system.exception.ApsSystemException;
-import com.agiletec.aps.system.common.AbstractService;
-import com.agiletec.aps.system.services.group.cache.IGroupManagerCacheWrapper;
 
 /**
  * Servizio gestore dei gruppi.
@@ -140,5 +140,21 @@ public class GroupManager extends AbstractService implements IGroupManager {
 	public void setCacheWrapper(IGroupManagerCacheWrapper cacheWrapper) {
 		this._cacheWrapper = cacheWrapper;
 	}
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public List<Group> getGroups(FieldSearchFilter[] filters) throws ApsSystemException {
+        List<Group> groups = new ArrayList<Group>();
+        try {
+            List<String> groupNames = this.getGroupDAO().searchGroups(filters);
+            for (String groupName : groupNames) {
+                groups.add(this.getGroup(groupName));
+            }
+        } catch (Throwable t) {
+            _logger.error("Error searching groups", t);
+            throw new ApsSystemException("Error searching groups", t);
+        }
+        return groups;
+    }
 	
 }
