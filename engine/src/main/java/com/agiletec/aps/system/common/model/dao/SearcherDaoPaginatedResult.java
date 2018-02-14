@@ -21,6 +21,16 @@ public class SearcherDaoPaginatedResult<T> {
 
     private List<T> list;
 
+    public SearcherDaoPaginatedResult() {
+
+    }
+
+    public SearcherDaoPaginatedResult(Integer count, List<T> list) {
+        super();
+        this.count = count;
+        this.list = list;
+    }
+
     public Integer getCount() {
         return count;
     }

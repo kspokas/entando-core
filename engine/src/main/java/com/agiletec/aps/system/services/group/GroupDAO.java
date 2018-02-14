@@ -32,8 +32,20 @@ import org.slf4j.LoggerFactory;
  */
 public class GroupDAO extends AbstractSearcherDAO implements IGroupDAO {
 
-	private static final Logger _logger =  LoggerFactory.getLogger(GroupDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(GroupDAO.class);
 	
+    @Override
+    public int countGroups(FieldSearchFilter[] filters) {
+        Integer groups = null;
+        try {
+            groups = super.countId(filters);
+        } catch (Throwable t) {
+            logger.error("error in count groups", t);
+            throw new RuntimeException("error in count groups", t);
+        }
+        return groups;
+    }
+
 	/**
 	 * Carica la mappa dei gruppi presenti nel sistema 
 	 * indicizzandola in base al nome del gruppo.
@@ -56,7 +68,7 @@ public class GroupDAO extends AbstractSearcherDAO implements IGroupDAO {
 				groups.put(group.getName(), group);
 			}
 		} catch (Throwable t) {
-			_logger.error("Error while loading groups",  t);
+            logger.error("Error while loading groups", t);
 			throw new RuntimeException("Error while loading groups", t);
 		} finally {
 			closeDaoResources(res, stat, conn);
@@ -82,7 +94,7 @@ public class GroupDAO extends AbstractSearcherDAO implements IGroupDAO {
 			conn.commit();
 		} catch (Throwable t) {
 			this.executeRollback(conn);
-			_logger.error("Error while adding a group",  t);
+            logger.error("Error while adding a group", t);
 			throw new RuntimeException("Error while adding a group", t);
 		} finally {
 			closeDaoResources(null, stat, conn);
@@ -107,7 +119,7 @@ public class GroupDAO extends AbstractSearcherDAO implements IGroupDAO {
 			conn.commit();
 		} catch (Throwable t) {
 			this.executeRollback(conn);
-			_logger.error("Error while updating a group",  t);
+            logger.error("Error while updating a group", t);
 			throw new RuntimeException("Error while updating a group", t);
 		} finally {
 			closeDaoResources(null, stat, conn);
@@ -140,38 +152,12 @@ public class GroupDAO extends AbstractSearcherDAO implements IGroupDAO {
 			conn.commit();
 		} catch (Throwable t) {
 			this.executeRollback(conn);
-			_logger.error("Error while deleting a group",  t);
+            logger.error("Error while deleting a group", t);
 			throw new RuntimeException("Error while deleting a group", t);
 		} finally {
 			closeDaoResources(null, stat, conn);
 		}
 	}
-
-	private final String ALL_GROUPS =
-		"SELECT groupname, descr FROM authgroups";
-
-	private final String DELETE_GROUP =
-		"DELETE FROM authgroups WHERE groupname = ? ";
-	
-	private final String ADD_GROUP =
-		"INSERT INTO authgroups (groupname ,descr ) VALUES ( ? , ? )";
-	
-	private final String UPDATE_GROUP =
-		"UPDATE authgroups SET descr= ? WHERE groupname = ? ";	
-
-	
-	
-    @Override
-    public List<String> searchGroups(FieldSearchFilter[] filters) {
-        List<String> groupsNames = null;
-        try {
-            groupsNames = super.searchId(filters);
-        } catch (Throwable t) {
-            _logger.error("error in search groups", t);
-            throw new RuntimeException("error in search groups", t);
-        }
-        return groupsNames;
-    }
 
     @Override
     protected String getTableFieldName(String metadataFieldKey) {
@@ -193,16 +179,28 @@ public class GroupDAO extends AbstractSearcherDAO implements IGroupDAO {
         return true;
     }
 
+    private final String ALL_GROUPS =
+            "SELECT groupname, descr FROM authgroups";
+
+    private final String DELETE_GROUP =
+            "DELETE FROM authgroups WHERE groupname = ? ";
+
+    private final String ADD_GROUP =
+            "INSERT INTO authgroups (groupname ,descr ) VALUES ( ? , ? )";
+
+    private final String UPDATE_GROUP =
+            "UPDATE authgroups SET descr= ? WHERE groupname = ? ";
+
     @Override
-    public int countGroups(FieldSearchFilter[] filters) {
-        Integer groups = null;
+    public List<String> searchGroups(FieldSearchFilter[] filters) {
+        List<String> groupsNames = null;
         try {
-            groups = super.countId(filters);
+            groupsNames = super.searchId(filters);
         } catch (Throwable t) {
-            _logger.error("error in search groups", t);
+            logger.error("error in search groups", t);
             throw new RuntimeException("error in search groups", t);
         }
-        return groups;
+        return groupsNames;
     }
 	
 }

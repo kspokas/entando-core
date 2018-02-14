@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GroupManager extends AbstractService implements IGroupManager {
 
-	private static final Logger _logger = LoggerFactory.getLogger(GroupManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(GroupManager.class);
 	
 	private IGroupDAO _groupDao;
 	private IGroupManagerCacheWrapper _cacheWrapper;
@@ -40,7 +40,7 @@ public class GroupManager extends AbstractService implements IGroupManager {
 	@Override
 	public void init() throws Exception {
 		this.getCacheWrapper().initCache(this.getGroupDAO());
-		_logger.debug("{} ready. Initialized", this.getClass().getName());
+        logger.debug("{} ready. Initialized", this.getClass().getName());
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class GroupManager extends AbstractService implements IGroupManager {
 			this.getGroupDAO().addGroup(group);
 			this.getCacheWrapper().addGroup(group);
 		} catch (Throwable t) {
-			_logger.error("Error detected while adding a group", t);
+            logger.error("Error detected while adding a group", t);
 			throw new ApsSystemException("Error detected while adding a group", t);
 		}
 	}
@@ -72,7 +72,7 @@ public class GroupManager extends AbstractService implements IGroupManager {
 			this.getGroupDAO().deleteGroup(group);
 			this.getCacheWrapper().removeGroup(group);
 		} catch (Throwable t) {
-			_logger.error("Error while removing a group", t);
+            logger.error("Error while removing a group", t);
 			throw new ApsSystemException("Error while removing a group", t);
 		}
 	}
@@ -89,7 +89,7 @@ public class GroupManager extends AbstractService implements IGroupManager {
 			this.getGroupDAO().updateGroup(group);
 			this.getCacheWrapper().updateGroup(group);
 		} catch (Throwable t) {
-			_logger.error("Error updating a group", t);
+            logger.error("Error updating a group", t);
 			throw new ApsSystemException("Error updating a group", t);
 		}
 	}
@@ -145,20 +145,18 @@ public class GroupManager extends AbstractService implements IGroupManager {
     @SuppressWarnings("rawtypes")
     @Override
     public SearcherDaoPaginatedResult<Group> getGroups(FieldSearchFilter[] filters) throws ApsSystemException {
-        SearcherDaoPaginatedResult<Group> pagedResult = new SearcherDaoPaginatedResult<Group>();
+        SearcherDaoPaginatedResult<Group> pagedResult = null;
         try {
             List<Group> groups = new ArrayList<>();
             int count = this.getGroupDAO().countGroups(filters);
-
 
             List<String> groupNames = this.getGroupDAO().searchGroups(filters);
             for (String groupName : groupNames) {
                 groups.add(this.getGroup(groupName));
             }
-            pagedResult.setCount(count);
-            pagedResult.setList(groups);
+            pagedResult = new SearcherDaoPaginatedResult<Group>(count, groups);
         } catch (Throwable t) {
-            _logger.error("Error searching groups", t);
+            logger.error("Error searching groups", t);
             throw new ApsSystemException("Error searching groups", t);
         }
         return pagedResult;

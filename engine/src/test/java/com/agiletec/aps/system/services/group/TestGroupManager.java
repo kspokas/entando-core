@@ -91,7 +91,7 @@ public class TestGroupManager extends BaseTestCase {
 	}
 
     @SuppressWarnings("rawtypes")
-    public void testSearch() throws ApsSystemException {
+    public void testSearchWithFieldSearchFilter() throws ApsSystemException {
         int limit = 2;
 
         List<Group> allGroups = this._groupManager.getGroups();
@@ -127,7 +127,19 @@ public class TestGroupManager extends BaseTestCase {
         assertEquals(allGroups.size(), pagedResult.getCount().intValue());
         assertEquals(0, pagedResult.getList().size());
 
+        //---
+        limitFilter = new FieldSearchFilter(25, 0);
+        filters[0] = limitFilter;
+        pagedResult = this._groupManager.getGroups(filters);
+        assertEquals(allGroups.size(), pagedResult.getCount().intValue());
+        assertEquals(allGroups.size(), pagedResult.getList().size());
+
+        //
+        pagedResult = this._groupManager.getGroups(null);
+        assertEquals(allGroups.size(), pagedResult.getCount().intValue());
+        assertEquals(6, pagedResult.getList().size());
     }
+
 
 	private void init() throws Exception {
 		try {
