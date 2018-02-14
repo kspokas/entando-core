@@ -17,11 +17,11 @@
 			http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd">
 
 
+	<bean id="GroupDtoBuilder" class="org.entando.entando.aps.system.services.group.model.GroupDtoBuilder" />
 	
-	<bean id="GroupService" class="org.entando.entando.aps.system.services.group.GroupService" 
-			 >
+	<bean id="GroupService" class="org.entando.entando.aps.system.services.group.GroupService" >
+		<property name="dtoBuilder" ref="GroupDtoBuilder" />
 		<property name="groupManager" ref="GroupManager" />
-		
 	</bean>
 
 	

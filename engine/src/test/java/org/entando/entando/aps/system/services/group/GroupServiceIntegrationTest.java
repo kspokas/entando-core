@@ -1,13 +1,10 @@
-package org.entando.entando.web.group;
+package org.entando.entando.aps.system.services.group;
 
 import com.agiletec.aps.BaseTestCase;
-import com.agiletec.aps.system.SystemConstants;
-import com.agiletec.aps.system.services.group.IGroupManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.entando.entando.aps.system.services.group.IGroupService;
+import org.entando.entando.aps.system.services.group.model.GroupDto;
 import org.entando.entando.web.common.model.PagedMetadata;
-import org.entando.entando.web.group.model.GroupDto;
 import org.entando.entando.web.model.common.RestListRequest;
 import org.junit.Test;
 
@@ -15,8 +12,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class GroupServiceIntegrationTest extends BaseTestCase {
-
-    private IGroupManager groupManager = null;
 
     private IGroupService groupService;
 
@@ -28,8 +23,7 @@ public class GroupServiceIntegrationTest extends BaseTestCase {
 
     private void init() throws Exception {
         try {
-            groupManager = (IGroupManager) this.getService(SystemConstants.GROUP_MANAGER);
-            groupService = (IGroupService) this.getApplicationContext().getBean("GroupService");
+            groupService = (IGroupService) this.getApplicationContext().getBean(IGroupService.BEAN_NAME);
         } catch (Exception e) {
             throw e;
         }
@@ -37,7 +31,7 @@ public class GroupServiceIntegrationTest extends BaseTestCase {
 
 
     @Test
-    public void testX() throws JsonProcessingException {
+    public void testGetGroups() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         RestListRequest restListRequest = new RestListRequest();
         PagedMetadata<GroupDto> res = this.groupService.getGroups(restListRequest);
@@ -91,6 +85,23 @@ public class GroupServiceIntegrationTest extends BaseTestCase {
 
     }
 
+    /*
+    @Test
+    public void testGetGroupsx() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        RestListRequest restListRequest = new RestListRequest();
+        restListRequest.setPageNum(1);
+        restListRequest.setPageSize(4);
+        PagedMetadata<GroupDto> res = this.groupService.getGroups(restListRequest);
+        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(res);
+        System.out.println(json);
+        assertThat(res.getPage(), is(1));
+        assertThat(res.getSize(), is(2));
+        assertThat(res.getLast(), is(1));
+        assertThat(res.getCount(), is(6));
+    
+    }
+     */
 
 
 }

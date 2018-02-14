@@ -3,15 +3,12 @@ package org.entando.entando.web.group;
 import javax.validation.Valid;
 
 import com.agiletec.aps.system.exception.ApsSystemException;
-import com.agiletec.aps.system.services.group.Group;
-import com.agiletec.aps.system.services.group.IGroupManager;
 import org.entando.entando.aps.system.services.group.IGroupService;
+import org.entando.entando.aps.system.services.group.model.GroupDto;
 import org.entando.entando.web.common.exceptions.ValidationConflictException;
 import org.entando.entando.web.common.exceptions.ValidationGenericException;
 import org.entando.entando.web.common.model.PagedMetadata;
 import org.entando.entando.web.common.model.RestResponse;
-import org.entando.entando.web.group.model.GroupDto;
-import org.entando.entando.web.group.model.GroupDtoBuilder;
 import org.entando.entando.web.group.validator.GroupValidator;
 import org.entando.entando.web.model.common.RestListRequest;
 import org.slf4j.Logger;
@@ -36,54 +33,50 @@ public class GroupController {
     private IGroupService groupService;
 
     @Autowired
-    private IGroupManager groupManager;
+    private GroupValidator groupValidator;
 
-	@Autowired
-	private GroupValidator groupValidator;
+    public IGroupService getGroupService() {
+        return groupService;
+    }
+
+    public void setGroupService(IGroupService groupService) {
+        this.groupService = groupService;
+    }
 
 
     //@Permissions("read_")
     @RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, name = "group_read")
     public ResponseEntity<?> getGroups(RestListRequest requestList) {
-
-        PagedMetadata<GroupDto> result = getGroupService().getGroups(requestList);
+        PagedMetadata<GroupDto> result = this.getGroupService().getGroups(requestList);
         return new ResponseEntity<>(new RestResponse(result.getBody(), null, result), HttpStatus.OK);
 	}
 
 
 	@RequestMapping(value = "/group/{groupName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> getGroup(@PathVariable String groupName) {
-		Group group = this.groupManager.getGroup(groupName);
-		GroupDto dto = new GroupDtoBuilder(group).build();
-		return new ResponseEntity<>(new RestResponse(dto), HttpStatus.OK);
+        GroupDto group = this.getGroupService().getGroup(groupName);
+        return new ResponseEntity<>(new RestResponse(group), HttpStatus.OK);
 	}
 
 	//TODO validation 
 	@RequestMapping(value = "/group/{groupName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> updateGroup(@PathVariable String groupName, @Valid @RequestBody SimpleGroupRequest groupRequest) {
-		Group group = this.groupManager.getGroup(groupName);
-		GroupDto dto = new GroupDtoBuilder(group).build();
-		return new ResponseEntity<>(new RestResponse(dto), HttpStatus.OK);
+        GroupDto group = this.getGroupService().updateGroup(groupName, groupRequest.getDescr());
+        return new ResponseEntity<>(new RestResponse(group), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> addGroup(@Valid @RequestBody GroupRequest groupRequest, BindingResult bindingResult) throws ApsSystemException {
-		
-		//validazioni formali
+        //field validations
 		if (bindingResult.hasErrors()) {
 			throw new ValidationGenericException(bindingResult);
 		}
-		
-        //----
-		//validazioni applicative
+        //business validations 
 		groupValidator.validate(groupRequest, bindingResult);
 		if (bindingResult.hasErrors()) {
 			throw new ValidationConflictException(bindingResult);
 		}
-
-		Group group = this.createGroup(groupRequest);
-		this.groupManager.addGroup(group);
-		GroupDto dto = new GroupDtoBuilder(group).build();
+        GroupDto dto = this.getGroupService().addGroup(groupRequest);
 		return new ResponseEntity<>(new RestResponse(dto), HttpStatus.OK);
 	}
 
@@ -91,27 +84,10 @@ public class GroupController {
 	@RequestMapping(value = "/groups/{groupName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> deleteGroup(@PathVariable String groupName) throws ApsSystemException {
 		logger.info("deleting {}", groupName);
-		Group group = this.groupManager.getGroup(groupName);
-		this.groupManager.removeGroup(group);
+        this.getGroupService().removeGroup(groupName);
 		return new ResponseEntity<>(new RestResponse(groupName), HttpStatus.OK);
 	}
 
 
-	protected Group createGroup(GroupRequest groupRequest) {
-		Group group = new Group();
-		group.setName(groupRequest.getName());
-		group.setDescription(groupRequest.getDescr());
-		return group;
-	}
-
-
-    public IGroupService getGroupService() {
-        return groupService;
-    }
-
-
-    public void setGroupService(IGroupService groupService) {
-        this.groupService = groupService;
-    }
 
 }

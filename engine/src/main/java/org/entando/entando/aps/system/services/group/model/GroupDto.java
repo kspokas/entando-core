@@ -1,4 +1,4 @@
-package org.entando.entando.web.group.model;
+package org.entando.entando.aps.system.services.group.model;
 
 import com.agiletec.aps.system.services.group.Group;
 

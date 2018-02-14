@@ -14,8 +14,8 @@ import org.springframework.validation.Validator;
 @Component
 public class GroupValidator implements Validator {
 
-	@Autowired
-	private IGroupManager groupManager;
+    @Autowired
+    private IGroupManager groupManager;
 
 	@Override
 	public boolean supports(Class<?> paramClass) {
@@ -23,8 +23,8 @@ public class GroupValidator implements Validator {
 		return GroupRequest.class.equals(paramClass);
 	}
 
-	@Override
-	public void validate(Object target, Errors errors) {
+    @Override
+    public void validate(Object target, Errors errors) {
 		GroupRequest request = (GroupRequest) target;
 		String groupName = request.getName();
 		if (null != groupManager.getGroup(groupName)) {
