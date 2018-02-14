@@ -1,16 +1,16 @@
-package org.entando.entando.web.group;
+package org.entando.entando.web.model.common;
 
 import com.agiletec.aps.system.common.FieldSearchFilter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-public class RestRequestRequestMetadata {
+public class RestListRequest {
 
     private String sort;
     private String direction;
 
-    private int pageNum;
-    private int pageSize = 5;
+    private Integer pageNum = 0;
+    private Integer pageSize = 5;
 
     private Filter[] filter;
 
@@ -38,21 +38,6 @@ public class RestRequestRequestMetadata {
         this.direction = direction;
     }
 
-    public int getPageNum() {
-        return pageNum;
-    }
-
-    public void setPageNum(int pageNum) {
-        this.pageNum = pageNum;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
 
     @SuppressWarnings("rawtypes")
     public FieldSearchFilter[] getFieldSearchFilters() {
@@ -70,7 +55,37 @@ public class RestRequestRequestMetadata {
             filters = ArrayUtils.add(filters, sort);
         }
 
+        if (null != this.getPageSize()) {
+            FieldSearchFilter pageFilter = new FieldSearchFilter(this.getPageSize(), this.getOffset());
+            filters = ArrayUtils.add(filters, pageFilter);
+        }
+
         return filters;
+    }
+
+    private Integer getOffset() {
+        int page = this.getPageNum();
+        if (null == this.getPageNum() || this.getPageNum() == 0) {
+            return 0;
+        }
+        return this.getPageSize() * page;
+
+    }
+
+    public Integer getPageNum() {
+        return pageNum;
+    }
+
+    public void setPageNum(Integer pageNum) {
+        this.pageNum = pageNum;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 
 }

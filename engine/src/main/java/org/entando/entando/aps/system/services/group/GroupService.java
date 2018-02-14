@@ -1,52 +1,54 @@
-package org.entando.entando.web.group;
+package org.entando.entando.aps.system.services.group;
 
 import java.util.List;
 
-import com.agiletec.aps.system.exception.ApsSystemException;
+import com.agiletec.aps.system.common.model.dao.SearcherDaoPaginatedResult;
 import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.group.IGroupManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections4.ListUtils;
 import org.entando.entando.web.common.model.PagedMetadata;
 import org.entando.entando.web.group.model.GroupDto;
 import org.entando.entando.web.group.model.GroupsDtoBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.entando.entando.web.model.common.RestListRequest;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GroupService implements IGroupService {
 
-
-    @Autowired
     private IGroupManager groupManager;
+
+    public IGroupManager getGroupManager() {
+        return groupManager;
+    }
+
+    public void setGroupManager(IGroupManager groupManager) {
+        this.groupManager = groupManager;
+    }
 
 
     @Override
-    public PagedMetadata<GroupDto> getGroups(RestRequestRequestMetadata requestList) {
+    public PagedMetadata<GroupDto> getGroups(RestListRequest restListReq) {
         try {
             //XXX
-            if (null == requestList) {
-                requestList = new RestRequestRequestMetadata();
-                requestList.setPageNum(0);
-                requestList.setPageSize(5);
+            if (null == restListReq) {
+                restListReq = new RestListRequest();
+                restListReq.setPageNum(0);
+                restListReq.setPageSize(5);
             }
-            List<Group> groups = this.getGroupManager().getGroups(requestList.getFieldSearchFilters());
-
-            List<List<Group>> resd = ListUtils.partition(groups, requestList.getPageSize());
-            PagedMetadata<GroupDto> pagedMetadata = new PagedMetadata<>(requestList.getPageNum(), groups.size(), resd.size());
-
-            List<GroupDto> dtoList = new GroupsDtoBuilder(resd.get(requestList.getPageNum())).build();
+            SearcherDaoPaginatedResult<Group> groups = this.getGroupManager().getGroups(restListReq.getFieldSearchFilters());
+            PagedMetadata<GroupDto> pagedMetadata = new PagedMetadata<>(restListReq, groups);
+            List<GroupDto> dtoList = new GroupsDtoBuilder(groups.getList()).build();
             pagedMetadata.setBody(dtoList);
 
             return pagedMetadata;
-        } catch (ApsSystemException e) {
-            throw new RuntimeException("doh!");
+        } catch (Throwable t) {
+            throw new RuntimeException("doh!", t);
         }
     }
 
 
-    private void print(RestRequestRequestMetadata requestList) {
+    private void print(RestListRequest requestList) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String x = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(requestList);
@@ -61,13 +63,5 @@ public class GroupService implements IGroupService {
     }
 
 
-    public IGroupManager getGroupManager() {
-        return groupManager;
-    }
-
-
-    public void setGroupManager(IGroupManager groupManager) {
-        this.groupManager = groupManager;
-    }
 
 }

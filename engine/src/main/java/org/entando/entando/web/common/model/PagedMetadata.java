@@ -2,13 +2,16 @@ package org.entando.entando.web.common.model;
 
 import java.util.List;
 
+import com.agiletec.aps.system.common.model.dao.SearcherDaoPaginatedResult;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.entando.entando.web.model.common.RestListRequest;
 
 public class PagedMetadata<T> {
 
 	private int page;
 	private int size;
 	private int last;
+    private int count;
 
     @JsonIgnore
 	private List<T> body;
@@ -17,10 +20,19 @@ public class PagedMetadata<T> {
 		//
 	}
 
-    public PagedMetadata(int page, int size, int last) {
+    public PagedMetadata(RestListRequest req, SearcherDaoPaginatedResult<?> result) {
+        this.page = req.getPageNum();
+        this.size = result.getList().size();
+        Double pages = Math.rint((new Double(result.getCount()) / new Double(req.getPageSize())));
+        this.last = pages.intValue() - 1;
+        this.count = result.getCount();
+    }
+
+    public PagedMetadata(int page, int size, int last, int count) {
 		this.page = page;
 		this.size = size;
 		this.last = last;
+        this.count = count;
 	}
 
 	public int getPage() {
@@ -53,6 +65,14 @@ public class PagedMetadata<T> {
 
     public void setBody(List<T> body) {
         this.body = body;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
 }

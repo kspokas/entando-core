@@ -4,13 +4,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.agiletec.aps.system.common.FieldSearchFilter;
 import com.agiletec.aps.system.services.authorization.AuthorizationManager;
 import com.agiletec.aps.system.services.authorization.IAuthorizationManager;
 import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.group.IGroupManager;
 import com.agiletec.aps.system.services.user.IAuthenticationProviderManager;
 import com.agiletec.aps.system.services.user.UserDetails;
+import org.entando.entando.aps.system.services.group.GroupService;
 import org.entando.entando.aps.system.services.oauth2.IApiOAuth2TokenManager;
 import org.entando.entando.web.common.handlers.ValidationHandler;
 import org.entando.entando.web.common.interceptor.EntandoOauth2Interceptor;
@@ -52,6 +52,7 @@ public class GroupControllerTest {
 
     @Mock
     private IAuthorizationManager authorizationManager;
+
 
     @Mock
     private IGroupManager groupManager;
@@ -132,7 +133,11 @@ public class GroupControllerTest {
 
         // @formatter:on
 
-        when(groupManager.getGroups(any(FieldSearchFilter[].class))).thenReturn(createFakeGroups());
+        
+
+
+        
+        //when(groupManager.getGroups(any(FieldSearchFilter[].class))).thenReturn(createFakeGroups());
         ResultActions result = mockMvc.perform(get("/groups").param("pageNum", "2").param("pageSize", "9").header("Authorization", "Bearer " + accessToken));
         result.andExpect(status().isOk());
         String response = result.andReturn().getResponse().getContentAsString();

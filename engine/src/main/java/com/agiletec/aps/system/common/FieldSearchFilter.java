@@ -25,6 +25,11 @@ import java.util.List;
 public class FieldSearchFilter<T> implements Serializable {
 	
 	protected FieldSearchFilter() {}
+
+    public FieldSearchFilter(Integer limit, Integer offset) {
+        this.setLimit(limit);
+        this.setOffset(offset);
+    }
 	
 	/**
 	 * Filter constructor.
@@ -261,7 +266,23 @@ public class FieldSearchFilter<T> implements Serializable {
 		this._valueDateDelay = valueDateDelay;
 	}
 	
-	private String _key;
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    private String _key;
 	
 	private Object _value;
 	
@@ -279,6 +300,9 @@ public class FieldSearchFilter<T> implements Serializable {
 	private Integer _endDateDelay;
 	private Integer _valueDateDelay;
 	
+    private Integer limit;
+    private Integer offset;
+
 	public static final String ASC_ORDER = Order.ASC.toString();
 	public static final String DESC_ORDER = Order.DESC.toString();
 	

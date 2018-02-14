@@ -19,6 +19,7 @@ import java.util.Map;
 
 import com.agiletec.aps.system.common.AbstractService;
 import com.agiletec.aps.system.common.FieldSearchFilter;
+import com.agiletec.aps.system.common.model.dao.SearcherDaoPaginatedResult;
 import com.agiletec.aps.system.exception.ApsSystemException;
 import com.agiletec.aps.system.services.group.cache.IGroupManagerCacheWrapper;
 import org.slf4j.Logger;
@@ -143,18 +144,25 @@ public class GroupManager extends AbstractService implements IGroupManager {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public List<Group> getGroups(FieldSearchFilter[] filters) throws ApsSystemException {
-        List<Group> groups = new ArrayList<Group>();
+    public SearcherDaoPaginatedResult<Group> getGroups(FieldSearchFilter[] filters) throws ApsSystemException {
+        SearcherDaoPaginatedResult<Group> pagedResult = new SearcherDaoPaginatedResult<Group>();
         try {
+            List<Group> groups = new ArrayList<>();
+            int count = this.getGroupDAO().countGroups(filters);
+
+
             List<String> groupNames = this.getGroupDAO().searchGroups(filters);
             for (String groupName : groupNames) {
                 groups.add(this.getGroup(groupName));
             }
+            pagedResult.setCount(count);
+            pagedResult.setList(groups);
         } catch (Throwable t) {
             _logger.error("Error searching groups", t);
             throw new ApsSystemException("Error searching groups", t);
         }
-        return groups;
+        return pagedResult;
     }
+
 	
 }

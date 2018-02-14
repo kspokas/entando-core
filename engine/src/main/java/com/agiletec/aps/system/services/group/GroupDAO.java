@@ -192,5 +192,17 @@ public class GroupDAO extends AbstractSearcherDAO implements IGroupDAO {
     protected boolean isForceCaseInsensitiveLikeSearch() {
         return true;
     }
+
+    @Override
+    public int countGroups(FieldSearchFilter[] filters) {
+        Integer groups = null;
+        try {
+            groups = super.countId(filters);
+        } catch (Throwable t) {
+            _logger.error("error in search groups", t);
+            throw new RuntimeException("error in search groups", t);
+        }
+        return groups;
+    }
 	
 }

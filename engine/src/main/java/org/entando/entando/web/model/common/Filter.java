@@ -1,4 +1,4 @@
-package org.entando.entando.web.group;
+package org.entando.entando.web.model.common;
 
 import com.agiletec.aps.system.common.FieldSearchFilter;
 
@@ -31,6 +31,7 @@ public class Filter {
     public void setValue(String value) {
         this.value = value;
     }
+
 
     public FieldSearchFilter getFieldSearchFilter() {
         FieldSearchFilter filter = new FieldSearchFilter(this.getAttribute(), this.getValue(), true);

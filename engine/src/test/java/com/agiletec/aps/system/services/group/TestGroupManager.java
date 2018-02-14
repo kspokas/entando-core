@@ -17,6 +17,9 @@ import java.util.List;
 
 import com.agiletec.aps.BaseTestCase;
 import com.agiletec.aps.system.SystemConstants;
+import com.agiletec.aps.system.common.FieldSearchFilter;
+import com.agiletec.aps.system.common.model.dao.SearcherDaoPaginatedResult;
+import com.agiletec.aps.system.exception.ApsSystemException;
 
 /**
  * @author E.Santoboni
@@ -86,6 +89,45 @@ public class TestGroupManager extends BaseTestCase {
 			_groupManager.removeGroup(group);
 		}
 	}
+
+    @SuppressWarnings("rawtypes")
+    public void testSearch() throws ApsSystemException {
+        int limit = 2;
+
+        List<Group> allGroups = this._groupManager.getGroups();
+        FieldSearchFilter[] filters = new FieldSearchFilter[1];
+        FieldSearchFilter limitFilter = new FieldSearchFilter(limit, 1);
+        filters[0] = limitFilter;
+        SearcherDaoPaginatedResult<Group> pagedResult = this._groupManager.getGroups(filters);
+        assertEquals(allGroups.size(), pagedResult.getCount().intValue());
+        assertEquals(limit, pagedResult.getList().size());
+
+        //---
+        limitFilter = new FieldSearchFilter(limit, 0);
+        filters[0] = limitFilter;
+        pagedResult = this._groupManager.getGroups(filters);
+        assertEquals(allGroups.size(), pagedResult.getCount().intValue());
+        assertEquals(limit, pagedResult.getList().size());
+        //---
+        limitFilter = new FieldSearchFilter(limit, 5);
+        filters[0] = limitFilter;
+        pagedResult = this._groupManager.getGroups(filters);
+        assertEquals(allGroups.size(), pagedResult.getCount().intValue());
+        assertEquals(1, pagedResult.getList().size());
+        //---
+        limitFilter = new FieldSearchFilter(limit, 6);
+        filters[0] = limitFilter;
+        pagedResult = this._groupManager.getGroups(filters);
+        assertEquals(allGroups.size(), pagedResult.getCount().intValue());
+        assertEquals(0, pagedResult.getList().size());
+        //---
+        limitFilter = new FieldSearchFilter(limit, 100);
+        filters[0] = limitFilter;
+        pagedResult = this._groupManager.getGroups(filters);
+        assertEquals(allGroups.size(), pagedResult.getCount().intValue());
+        assertEquals(0, pagedResult.getList().size());
+
+    }
 
 	private void init() throws Exception {
 		try {

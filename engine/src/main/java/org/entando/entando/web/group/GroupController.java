@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import com.agiletec.aps.system.exception.ApsSystemException;
 import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.group.IGroupManager;
+import org.entando.entando.aps.system.services.group.IGroupService;
 import org.entando.entando.web.common.exceptions.ValidationConflictException;
 import org.entando.entando.web.common.exceptions.ValidationGenericException;
 import org.entando.entando.web.common.model.PagedMetadata;
@@ -12,6 +13,7 @@ import org.entando.entando.web.common.model.RestResponse;
 import org.entando.entando.web.group.model.GroupDto;
 import org.entando.entando.web.group.model.GroupDtoBuilder;
 import org.entando.entando.web.group.validator.GroupValidator;
+import org.entando.entando.web.model.common.RestListRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,7 @@ public class GroupController {
 
     //@Permissions("read_")
     @RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, name = "group_read")
-    public ResponseEntity<?> getGroups(RestRequestRequestMetadata requestList) {
+    public ResponseEntity<?> getGroups(RestListRequest requestList) {
 
         PagedMetadata<GroupDto> result = getGroupService().getGroups(requestList);
         return new ResponseEntity<>(new RestResponse(result.getBody(), null, result), HttpStatus.OK);

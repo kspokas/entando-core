@@ -43,18 +43,39 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
 		ResultSet result = null;
 		try {
 			conn = this.getConnection();
-			stat = this.buildStatement(filters, false, conn);
+            stat = this.buildStatement(filters, false, false, conn);
 			result = stat.executeQuery();
 			this.flowResult(idList, filters, result);
 		} catch (Throwable t) {
 			_logger.error("Error while loading the list of IDs",  t);
 			throw new RuntimeException("Error while loading the list of IDs", t);
-			//processDaoException(t, "Error while loading the list of IDs", "searchId");
 		} finally {
 			closeDaoResources(result, stat, conn);
 		}
 		return idList;
 	}
+
+    protected Integer countId(FieldSearchFilter[] filters) {
+        Connection conn = null;
+        int count = 0;
+        PreparedStatement stat = null;
+        ResultSet result = null;
+        try {
+            conn = this.getConnection();
+            stat = this.buildStatement(filters, true, false, conn);
+            result = stat.executeQuery();
+            if (result.next()) {
+                count = result.getInt(1);
+            }
+            //this.flowResult(idList, filters, result);
+        } catch (Throwable t) {
+            _logger.error("Error while loading the list of IDs", t);
+            throw new RuntimeException("Error while loading the list of IDs", t);
+        } finally {
+            closeDaoResources(result, stat, conn);
+        }
+        return count;
+    }
 	
 	protected FieldSearchFilter[] addFilter(FieldSearchFilter[] filters, FieldSearchFilter filterToAdd){
 		int len = 0;
@@ -177,8 +198,13 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
 		return false;
 	}
 	
-	private PreparedStatement buildStatement(FieldSearchFilter[] filters, boolean selectAll, Connection conn) {
-		String query = this.createQueryString(filters, selectAll);
+    protected PreparedStatement buildStatement(FieldSearchFilter[] filters, boolean isCount, boolean selectAll, Connection conn) {
+        String query = this.createQueryString(filters, isCount, selectAll);
+
+        System.out.println("+++++++++++++++");
+        System.out.println(query);
+        System.out.println("+++++++++++++++");
+
 		PreparedStatement stat = null;
 		try {
 			stat = conn.prepareStatement(query);
@@ -214,14 +240,16 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
 	}
 	
 	/**
-	 * Add to the statement a filter on a attribute.
-	 * @param filter The filter on the attribute to apply in the statement.
-	 * @param index The last index used to associate the elements to the statement.
-	 * @param stat The statement where the filters are applied.
-	 * @return The last used index.
-	 * @throws SQLException In case of error.
-	 */
+     * Add to the statement a filter on a attribute.
+     * @param filter The filter on the attribute to apply in the statement.
+     * @param index The last index used to associate the elements to the statement.
+     * @param stat The statement where the filters are applied.
+     * @return The last used index.
+     * @throws SQLException In case of error.
+     *
+     */
 	protected int addObjectSearchStatementBlock(FieldSearchFilter filter, int index, PreparedStatement stat) throws SQLException {
+        //TODO è davvero usato?
 		if (filter.isLikeOption() && this.isForceTextCaseSearch()) {
 			return index;
 		}
@@ -295,10 +323,15 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
 		}
 	}
 	
-	protected String createQueryString(FieldSearchFilter[] filters, boolean selectAll) {
-		StringBuffer query = this.createBaseQueryBlock(filters, selectAll);
+    protected String createQueryString(FieldSearchFilter[] filters, boolean isCount, boolean selectAll) {
+        StringBuffer query = this.createBaseQueryBlock(filters, isCount, selectAll);
 		boolean hasAppendWhereClause = this.appendMetadataFieldFilterQueryBlocks(filters, query, false);
-		boolean ordered = appendOrderQueryBlocks(filters, query, false);
+
+        if (!isCount) {
+            this.appendLimitQueryBlock(filters, query, hasAppendWhereClause);
+            boolean ordered = appendOrderQueryBlocks(filters, query, false);
+        }
+
 		return query.toString();
 	}
 	
@@ -311,11 +344,28 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
 	 * is selected.
 	 * @return The base block of the query.
 	 */
-	protected StringBuffer createBaseQueryBlock(FieldSearchFilter[] filters, boolean selectAll) {
-		StringBuffer query = this.createMasterSelectQueryBlock(filters, selectAll);
+    protected StringBuffer createBaseQueryBlock(FieldSearchFilter[] filters, boolean selectAll) {
+        return this.createBaseQueryBlock(filters, false, selectAll);
+    }
+
+    protected StringBuffer createBaseQueryBlock(FieldSearchFilter[] filters, boolean isCount, boolean selectAll) {
+        StringBuffer query = null;
+        if (isCount) {
+            query = this.createMasterCountQueryBlock(filters, selectAll);
+        } else {
+
+            query = this.createMasterSelectQueryBlock(filters, selectAll);
+        }
 		return query;
 	}
 	
+    private StringBuffer createMasterCountQueryBlock(FieldSearchFilter[] filters, boolean selectAll) {
+        String masterTableName = this.getMasterTableName();
+        StringBuffer query = new StringBuffer("SELECT COUNT(*)");
+        query.append(" FROM ").append(masterTableName).append(" ");
+        return query;
+    }
+
 	private StringBuffer createMasterSelectQueryBlock(FieldSearchFilter[] filters, boolean selectAll) {
 		String masterTableName = this.getMasterTableName();
 		StringBuffer query = new StringBuffer("SELECT ").append(masterTableName).append(".");
@@ -335,8 +385,29 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
 		query.append(" FROM ").append(masterTableName).append(" ");
 		return query;
 	}
+
 	
-	protected boolean appendMetadataFieldFilterQueryBlocks(FieldSearchFilter[] filters, StringBuffer query, boolean hasAppendWhereClause) {
+    private void appendLimitQueryBlock(FieldSearchFilter[] filters, StringBuffer query, boolean hasAppendWhereClause) {
+        try {
+            if (null == filters || filters.length == 0) {
+                _logger.warn("no filters");
+                return;
+            }
+            for (FieldSearchFilter filter : filters) {
+                if (filter.getOffset() != null && filter.getLimit() != null) {
+                    query.append(QueryLimitResolver.createLimitBlock(filter, this.getDataSource()));
+                    break;
+                }
+            }
+        } catch (Throwable t) {
+            //XXX spuddu
+            t.printStackTrace();
+        }
+
+
+    }
+
+    protected boolean appendMetadataFieldFilterQueryBlocks(FieldSearchFilter[] filters, StringBuffer query, boolean hasAppendWhereClause) {
 		if (filters == null) {
 			return hasAppendWhereClause;
 		}

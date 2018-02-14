@@ -63,4 +63,6 @@ public interface IGroupDAO {
 
     public List<String> searchGroups(FieldSearchFilter[] filters);
 
+    public int countGroups(FieldSearchFilter[] filters);
+
 }
