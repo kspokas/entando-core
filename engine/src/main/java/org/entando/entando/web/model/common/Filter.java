@@ -48,9 +48,13 @@ public class Filter {
         this.operator = operator;
     }
 
+    public String getAttributeName() {
+        return this.getAttribute();
+    }
+
     @SuppressWarnings("rawtypes")
     public FieldSearchFilter getFieldSearchFilter() {
-        FieldSearchFilter filter = new FieldSearchFilter(this.getAttribute(), this.getValue(), false);
+        FieldSearchFilter filter = new FieldSearchFilter(this.getAttributeName(), this.getValue(), false);
         return filter;
     }
 }

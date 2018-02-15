@@ -10,8 +10,10 @@ import org.entando.entando.web.common.exceptions.ValidationConflictException;
 import org.entando.entando.web.common.exceptions.ValidationGenericException;
 import org.entando.entando.web.common.model.PagedMetadata;
 import org.entando.entando.web.common.model.RestResponse;
+import org.entando.entando.web.group.model.GroupListRequest;
+import org.entando.entando.web.group.model.GroupRequest;
+import org.entando.entando.web.group.model.SimpleGroupRequest;
 import org.entando.entando.web.group.validator.GroupValidator;
-import org.entando.entando.web.model.common.RestListRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +49,7 @@ public class GroupController {
 
     @RestAccessControl(permission = "group_read")
     @RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getGroups(RestListRequest requestList) {
+    public ResponseEntity<?> getGroups(GroupListRequest requestList) {
         PagedMetadata<GroupDto> result = this.getGroupService().getGroups(requestList);
         return new ResponseEntity<>(new RestResponse(result.getBody(), null, result), HttpStatus.OK);
 	}

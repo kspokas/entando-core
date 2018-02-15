@@ -1,7 +1,7 @@
 package org.entando.entando.web.group.validator;
 
 import com.agiletec.aps.system.services.group.IGroupManager;
-import org.entando.entando.web.group.GroupRequest;
+import org.entando.entando.web.group.model.GroupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

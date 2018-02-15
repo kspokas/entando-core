@@ -42,4 +42,16 @@ public class GroupDto {
 		this.name = name;
 	}
 
+    //TODO FIX MAGIC STRINGS
+    public static String getEntityFieldName(String dtoFieldName) {
+        if (dtoFieldName.equals("code")) {
+            return "groupname";
+        } else if (dtoFieldName.equals("name")) {
+            return "descr";
+        } else {
+            return dtoFieldName;
+        }
+    }
+
 }
+

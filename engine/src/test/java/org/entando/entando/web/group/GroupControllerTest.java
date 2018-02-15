@@ -162,6 +162,62 @@ public class GroupControllerTest {
         result.andExpect(jsonPath("$.metadata.size", is(2)));
     }
 
+    @Test
+    public void should_load_the_list_of_groups_2() throws Exception {
+        String accessToken = OAuth2TestUtils.getAccessToken(true);
+
+        // @formatter:off
+        UserDetails user = new OAuth2TestUtils.UserBuilder("jack_bauer", "0x24")
+                .grantedToMagageRoles(Group.FREE_GROUP_NAME)
+                .build();
+        
+        when(apiOAuth2TokenManager.getApiOAuth2Token(Mockito.anyString())).thenReturn(OAuth2TestUtils.getOAuth2Token(user.getUsername(), accessToken));
+        when(authenticationProviderManager.getUser(user.getUsername())).thenReturn(user);
+        when(authorizationManager.isAuthOnPermission(any(UserDetails.class), anyString())).then(new Answer<Boolean>() {
+            @Override
+            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                UserDetails user = (UserDetails) invocation.getArguments()[0];
+                String permissionName = (String) invocation.getArguments()[1];
+                return new AuthorizationManager().isAuthOnPermission(user, permissionName);
+            }
+        });
+        
+        // @formatter:on
+
+        String mockJsonResult = "{\n" +
+                                "  \"page\" : 1,\n" +
+                                "  \"size\" : 2,\n" +
+                                "  \"last\" : 1,\n" +
+                                "  \"count\" : 6,\n" +
+                                "  \"body\" : [ {\n" +
+                                "    \"code\" : \"helpdesk\",\n" +
+                                "    \"name\" : \"Helpdesk\"\n" +
+                                "  }, {\n" +
+                                "    \"code\" : \"management\",\n" +
+                                "    \"name\" : \"Management\"\n" +
+                                "  } ]\n" +
+                                "}";
+        PagedMetadata<GroupDto> mockResult = (PagedMetadata<GroupDto>) this.createPagedMetadata(mockJsonResult);
+        when(groupService.getGroups(any(RestListRequest.class))).thenReturn(mockResult);
+        // @formatter:off
+ 
+
+        ResultActions result = mockMvc.perform(
+                                               get("/groups")
+                                               .param("pageNum", "1")
+                                               .param("pageSize", "4")
+                                               .param("filter[0].attribute", "code")
+                                               .param("filter[0].value", "free")
+                                               .header("Authorization", "Bearer " + accessToken)
+                                               );
+// @formatter:on
+        result.andExpect(status().isOk());
+        //        String response = result.andReturn().getResponse().getContentAsString();
+        //        System.out.println(response);
+        result.andExpect(jsonPath("$.payload", hasSize(2)));
+        result.andExpect(jsonPath("$.metadata.page", is(1)));
+        result.andExpect(jsonPath("$.metadata.size", is(2)));
+    }
 
     private Object createPagedMetadata(String json) throws IOException, JsonParseException, JsonMappingException {
         ObjectMapper mapper = new ObjectMapper();

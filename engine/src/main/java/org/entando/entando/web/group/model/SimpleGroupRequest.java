@@ -1,4 +1,4 @@
-package org.entando.entando.web.group;
+package org.entando.entando.web.group.model;
 
 import javax.validation.constraints.NotNull;
 

@@ -24,7 +24,7 @@ import org.entando.entando.aps.system.services.group.model.GroupDto;
 import org.entando.entando.web.common.exceptions.RestRourceNotFoundException;
 import org.entando.entando.web.common.exceptions.RestServerError;
 import org.entando.entando.web.common.model.PagedMetadata;
-import org.entando.entando.web.group.GroupRequest;
+import org.entando.entando.web.group.model.GroupRequest;
 import org.entando.entando.web.model.common.RestListRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,6 @@ public class GroupService implements IGroupService {
     @Override
     public PagedMetadata<GroupDto> getGroups(RestListRequest restListReq) {
         try {
-
             SearcherDaoPaginatedResult<Group> groups = this.getGroupManager().getGroups(restListReq.getFieldSearchFilters());
             List<GroupDto> dtoList = dtoBuilder.convert(groups.getList());
 

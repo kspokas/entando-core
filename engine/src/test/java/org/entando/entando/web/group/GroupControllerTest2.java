@@ -22,6 +22,7 @@ import org.entando.entando.aps.system.services.oauth2.ApiOAuth2TokenManager;
 import org.entando.entando.aps.system.services.oauth2.model.OAuth2Token;
 import org.entando.entando.web.common.handlers.RestExceptionHandler;
 import org.entando.entando.web.common.interceptor.EntandoOauth2Interceptor;
+import org.entando.entando.web.group.model.GroupRequest;
 import org.entando.entando.web.group.validator.GroupValidator;
 import org.junit.After;
 import org.junit.Before;

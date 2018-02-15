@@ -4,7 +4,7 @@ import com.agiletec.aps.system.common.FieldSearchFilter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-public class RestListRequest {
+public class RestListRequest<T extends Filter> {
 
     private String sort;
     private String direction;
@@ -12,13 +12,13 @@ public class RestListRequest {
     private Integer pageNum = 0;
     private Integer pageSize = 5;
 
-    private Filter[] filter;
+    private T[] filter;
 
-    public Filter[] getFilter() {
+    public T[] getFilter() {
         return filter;
     }
 
-    public void setFilter(Filter[] filter) {
+    public void setFilter(T[] filter) {
         this.filter = filter;
     }
 
@@ -54,7 +54,7 @@ public class RestListRequest {
         this.pageSize = pageSize;
     }
 
-    public void addFilter(Filter filter) {
+    public void addFilter(T filter) {
         this.filter = ArrayUtils.add(this.filter, filter);
     }
 

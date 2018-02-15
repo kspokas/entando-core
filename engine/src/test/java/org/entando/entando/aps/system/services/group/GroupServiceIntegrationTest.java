@@ -88,7 +88,7 @@ public class GroupServiceIntegrationTest extends BaseTestCase {
     @Test
     public void testGetGroups_filter() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        RestListRequest restListRequest = new RestListRequest();
+        RestListRequest<Filter> restListRequest = new RestListRequest<Filter>();
         restListRequest.addFilter(new Filter("groupname", "free"));
 
         PagedMetadata<GroupDto> res = this.groupService.getGroups(restListRequest);
@@ -100,24 +100,6 @@ public class GroupServiceIntegrationTest extends BaseTestCase {
         assertThat(res.getCount(), is(1));
     }
 
-
-    /*
-    @Test
-    public void testGetGroupsx() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        RestListRequest restListRequest = new RestListRequest();
-        restListRequest.setPageNum(1);
-        restListRequest.setPageSize(4);
-        PagedMetadata<GroupDto> res = this.groupService.getGroups(restListRequest);
-        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(res);
-        System.out.println(json);
-        assertThat(res.getPage(), is(1));
-        assertThat(res.getSize(), is(2));
-        assertThat(res.getLast(), is(1));
-        assertThat(res.getCount(), is(6));
-    
-    }
-     */
 
 
 }
