@@ -202,6 +202,11 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
     protected PreparedStatement buildStatement(FieldSearchFilter[] filters, boolean isCount, boolean selectAll, Connection conn) {
         String query = this.createQueryString(filters, isCount, selectAll);
         logger.trace("{}", query);
+
+        System.out.println("+++++++++++++++++++++++");
+        System.out.println(query);
+        System.out.println("+++++++++++++++++++++++");
+
         PreparedStatement stat = null;
         try {
             stat = conn.prepareStatement(query);

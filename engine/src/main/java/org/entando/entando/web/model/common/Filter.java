@@ -33,8 +33,24 @@ public class Filter {
     }
 
 
+    public Filter() {
+        //
+    }
+
+    public Filter(String attribute, String value) {
+        this.attribute = attribute;
+        this.value = value;
+
+    }
+
+    public Filter(String attribute, String value, String operator) {
+        this(attribute, value);
+        this.operator = operator;
+    }
+
+    @SuppressWarnings("rawtypes")
     public FieldSearchFilter getFieldSearchFilter() {
-        FieldSearchFilter filter = new FieldSearchFilter(this.getAttribute(), this.getValue(), true);
+        FieldSearchFilter filter = new FieldSearchFilter(this.getAttribute(), this.getValue(), false);
         return filter;
     }
 }

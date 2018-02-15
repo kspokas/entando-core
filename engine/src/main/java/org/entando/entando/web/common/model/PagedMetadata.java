@@ -23,7 +23,7 @@ public class PagedMetadata<T> {
     public PagedMetadata(RestListRequest req, SearcherDaoPaginatedResult<?> result) {
         this.page = req.getPageNum();
         this.size = result.getList().size();
-        Double pages = Math.rint((new Double(result.getCount()) / new Double(req.getPageSize())));
+        Double pages = Math.ceil((new Double(result.getCount()) / new Double(req.getPageSize())));
         this.last = pages.intValue() - 1;
         this.count = result.getCount();
     }

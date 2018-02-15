@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.entando.entando.aps.system.services.group.model.GroupDto;
 import org.entando.entando.web.common.model.PagedMetadata;
+import org.entando.entando.web.model.common.Filter;
 import org.entando.entando.web.model.common.RestListRequest;
 import org.junit.Test;
 
@@ -82,8 +83,23 @@ public class GroupServiceIntegrationTest extends BaseTestCase {
         assertThat(res.getSize(), is(0));
         assertThat(res.getLast(), is(1));
         assertThat(res.getCount(), is(6));
-
     }
+
+    @Test
+    public void testGetGroups_filter() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        RestListRequest restListRequest = new RestListRequest();
+        restListRequest.addFilter(new Filter("groupname", "free"));
+
+        PagedMetadata<GroupDto> res = this.groupService.getGroups(restListRequest);
+        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(res);
+        System.out.println(json);
+        assertThat(res.getPage(), is(0));
+        assertThat(res.getSize(), is(1));
+        assertThat(res.getLast(), is(0));
+        assertThat(res.getCount(), is(1));
+    }
+
 
     /*
     @Test

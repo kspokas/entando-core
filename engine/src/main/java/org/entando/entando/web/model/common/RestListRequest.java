@@ -38,6 +38,25 @@ public class RestListRequest {
         this.direction = direction;
     }
 
+    public Integer getPageNum() {
+        return pageNum;
+    }
+
+    public void setPageNum(Integer pageNum) {
+        this.pageNum = pageNum;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public void addFilter(Filter filter) {
+        this.filter = ArrayUtils.add(this.filter, filter);
+    }
 
     @SuppressWarnings("rawtypes")
     public FieldSearchFilter[] getFieldSearchFilters() {
@@ -69,23 +88,6 @@ public class RestListRequest {
             return 0;
         }
         return this.getPageSize() * page;
-
-    }
-
-    public Integer getPageNum() {
-        return pageNum;
-    }
-
-    public void setPageNum(Integer pageNum) {
-        this.pageNum = pageNum;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
     }
 
 }

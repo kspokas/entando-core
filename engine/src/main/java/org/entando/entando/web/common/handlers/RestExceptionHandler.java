@@ -35,6 +35,14 @@ public class RestExceptionHandler {
     @Autowired
     private MessageSource messageSource;
 
+    public MessageSource getMessageSource() {
+        return messageSource;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
     @ExceptionHandler(value = EntandoAuthorizationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
@@ -52,7 +60,7 @@ public class RestExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public RestResponse processRestRourceNotFoundEx(RestRourceNotFoundException ex) {
-        logger.debug("Handling RestRourceNotFoundException error");
+        logger.debug("Handling {} error", ex.getClass().getSimpleName());
         RestResponse response = new RestResponse();
 
         RestError error = new RestError(null, this.resolveLocalizedErrorMessage("NOT_FOUND", new Object[]{ex.getObjectName(), ex.getObjectCode()}));
@@ -66,7 +74,7 @@ public class RestExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public RestResponse processValidationError(ValidationConflictException ex) {
-        logger.debug("Handling ValidationException error");
+        logger.debug("Handling {} error", ex.getClass().getSimpleName());
         BindingResult result = ex.getBindingResult();
         RestResponse response = processAllErrors(result);
         return response;
@@ -76,7 +84,7 @@ public class RestExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public RestResponse processValidationError(ValidationGenericException ex) {
-        logger.debug("Handling ValidationException error");
+        logger.debug("Handling {} error", ex.getClass().getSimpleName());
         BindingResult result = ex.getBindingResult();
         RestResponse response = processAllErrors(result);
         return response;
@@ -86,7 +94,7 @@ public class RestExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public RestResponse processValidationError(MethodArgumentNotValidException ex) {
-        logger.debug("Handling MethodArgumentNotValidException error");
+        logger.debug("Handling {} error", ex.getClass().getSimpleName());
         BindingResult result = ex.getBindingResult();
         RestResponse response = processAllErrors(result);
         return response;
@@ -128,8 +136,7 @@ public class RestExceptionHandler {
     }
 
     /**
-     * prova ad utilizzare il default message, altrimenti va sul default di
-     * hibernate
+     * prova ad utilizzare il default message, altrimenti va sul default
      *
      * @param fieldError
      * @return
@@ -147,11 +154,4 @@ public class RestExceptionHandler {
         return localizedErrorMessage;
     }
 
-    public MessageSource getMessageSource() {
-        return messageSource;
-    }
-
-    public void setMessageSource(MessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
 }
