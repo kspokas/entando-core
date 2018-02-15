@@ -20,7 +20,7 @@ import com.agiletec.aps.system.services.user.UserManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.entando.entando.aps.system.services.oauth2.ApiOAuth2TokenManager;
 import org.entando.entando.aps.system.services.oauth2.model.OAuth2Token;
-import org.entando.entando.web.common.handlers.ValidationHandler;
+import org.entando.entando.web.common.handlers.RestExceptionHandler;
 import org.entando.entando.web.common.interceptor.EntandoOauth2Interceptor;
 import org.entando.entando.web.group.validator.GroupValidator;
 import org.junit.After;
@@ -101,7 +101,7 @@ public class GroupControllerTest2 {
 
     @Autowired
     @InjectMocks
-    private ValidationHandler handler;
+    private RestExceptionHandler handler;
 
     private List<Group> mockGroups = new ArrayList<>();
 
@@ -321,7 +321,7 @@ public class GroupControllerTest2 {
     private ExceptionHandlerExceptionResolver createExceptionResolver() {
         ExceptionHandlerExceptionResolver exceptionResolver = new ExceptionHandlerExceptionResolver() {
             protected ServletInvocableHandlerMethod getExceptionHandlerMethod(HandlerMethod handlerMethod, Exception exception) {
-                Method method = new ExceptionHandlerMethodResolver(ValidationHandler.class).resolveMethod(exception);
+                Method method = new ExceptionHandlerMethodResolver(RestExceptionHandler.class).resolveMethod(exception);
                 return new ServletInvocableHandlerMethod(handler, method);
             }
         };

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.entando.entando.aps.system.services.group.GroupService;
 import org.entando.entando.aps.system.services.group.model.GroupDto;
 import org.entando.entando.aps.system.services.oauth2.IApiOAuth2TokenManager;
-import org.entando.entando.web.common.handlers.ValidationHandler;
+import org.entando.entando.web.common.handlers.RestExceptionHandler;
 import org.entando.entando.web.common.interceptor.EntandoOauth2Interceptor;
 import org.entando.entando.web.common.model.PagedMetadata;
 import org.entando.entando.web.model.common.RestListRequest;
@@ -83,8 +83,8 @@ public class GroupControllerTest {
 
             @Override
             protected ServletInvocableHandlerMethod getExceptionHandlerMethod(HandlerMethod handlerMethod,Exception exception) {
-                Method method = new ExceptionHandlerMethodResolver(ValidationHandler.class).resolveMethod(exception);
-                ValidationHandler validationHandler = new ValidationHandler();
+                Method method = new ExceptionHandlerMethodResolver(RestExceptionHandler.class).resolveMethod(exception);
+                RestExceptionHandler validationHandler = new RestExceptionHandler();
                 validationHandler.setMessageSource(messageSource);
                 return new ServletInvocableHandlerMethod(validationHandler, method);
             }

@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.entando.entando.web.common.exceptions.EntandoAuthorizationException;
+import org.entando.entando.web.common.exceptions.RestRourceNotFoundException;
 import org.entando.entando.web.common.exceptions.ValidationConflictException;
 import org.entando.entando.web.common.exceptions.ValidationGenericException;
 import org.entando.entando.web.common.model.RestError;
@@ -26,16 +27,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-/**
- * intercetta globalmente le exception sollevate dai servizi rest e le traduce
- * in una {@link RestResponse} con status e payload customizzabile
- *
- */
-//TODO RENAME
 @ControllerAdvice
-public class ValidationHandler {
+public class RestExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ValidationHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(RestExceptionHandler.class);
 
     @Autowired
     private MessageSource messageSource;
@@ -47,6 +42,20 @@ public class ValidationHandler {
         logger.debug("Handling {} error", ex.getClass().getSimpleName());
         RestResponse response = new RestResponse();
         RestError error = new RestError("101", this.resolveLocalizedErrorMessage("UNAUTHORIZED", new Object[]{ex.getUsername(), ex.getRequestURI(), ex.getMethod()}));
+        List<RestError> errors = new ArrayList<>();
+        errors.add(error);
+        response.setErrors(errors);
+        return response;
+    }
+
+    @ExceptionHandler(value = RestRourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public RestResponse processRestRourceNotFoundEx(RestRourceNotFoundException ex) {
+        logger.debug("Handling RestRourceNotFoundException error");
+        RestResponse response = new RestResponse();
+
+        RestError error = new RestError(null, this.resolveLocalizedErrorMessage("NOT_FOUND", new Object[]{ex.getObjectName(), ex.getObjectCode()}));
         List<RestError> errors = new ArrayList<>();
         errors.add(error);
         response.setErrors(errors);
