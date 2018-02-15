@@ -49,7 +49,6 @@ public class EntandoOauth2Interceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
         if (handler instanceof HandlerMethod) {
             HandlerMethod method = (HandlerMethod) handler;
             if (method.getMethod().isAnnotationPresent(RequestMapping.class)) {
