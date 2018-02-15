@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import com.agiletec.aps.system.exception.ApsSystemException;
 import org.entando.entando.aps.system.services.group.IGroupService;
 import org.entando.entando.aps.system.services.group.model.GroupDto;
+import org.entando.entando.web.common.annotation.RestAccessControl;
 import org.entando.entando.web.common.exceptions.ValidationConflictException;
 import org.entando.entando.web.common.exceptions.ValidationGenericException;
 import org.entando.entando.web.common.model.PagedMetadata;
@@ -44,27 +45,28 @@ public class GroupController {
     }
 
 
-    //@Permissions("read_")
-    @RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, name = "group_read")
+    @RestAccessControl(permission = "group_read")
+    @RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getGroups(RestListRequest requestList) {
         PagedMetadata<GroupDto> result = this.getGroupService().getGroups(requestList);
         return new ResponseEntity<>(new RestResponse(result.getBody(), null, result), HttpStatus.OK);
 	}
 
-
-	@RequestMapping(value = "/group/{groupName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
+    @RestAccessControl(permission = "group_read")
+    @RequestMapping(value = "/group/{groupName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getGroup(@PathVariable String groupName) {
         GroupDto group = this.getGroupService().getGroup(groupName);
         return new ResponseEntity<>(new RestResponse(group), HttpStatus.OK);
 	}
 
-	//TODO validation 
+    @RestAccessControl(permission = "group_write")
 	@RequestMapping(value = "/group/{groupName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> updateGroup(@PathVariable String groupName, @Valid @RequestBody SimpleGroupRequest groupRequest) {
         GroupDto group = this.getGroupService().updateGroup(groupName, groupRequest.getDescr());
         return new ResponseEntity<>(new RestResponse(group), HttpStatus.OK);
 	}
 
+    @RestAccessControl(permission = "group_write")
 	@RequestMapping(value = "/groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> addGroup(@Valid @RequestBody GroupRequest groupRequest, BindingResult bindingResult) throws ApsSystemException {
         //field validations
@@ -80,7 +82,7 @@ public class GroupController {
 		return new ResponseEntity<>(new RestResponse(dto), HttpStatus.OK);
 	}
 
-
+    @RestAccessControl(permission = "group_delete")
 	@RequestMapping(value = "/groups/{groupName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE, name = "roleGroup")
 	public ResponseEntity<?> deleteGroup(@PathVariable String groupName) throws ApsSystemException {
 		logger.info("deleting {}", groupName);
@@ -88,6 +90,5 @@ public class GroupController {
 		return new ResponseEntity<>(new RestResponse(groupName), HttpStatus.OK);
 	}
 
-
-
 }
+

@@ -7,22 +7,22 @@ package org.entando.entando.web.common.interceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
 
 import com.agiletec.aps.system.exception.ApsSystemException;
 import com.agiletec.aps.system.services.authorization.IAuthorizationManager;
 import com.agiletec.aps.system.services.user.IAuthenticationProviderManager;
 import com.agiletec.aps.system.services.user.UserDetails;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.ParameterStyle;
 import org.apache.oltu.oauth2.rs.request.OAuthAccessResourceRequest;
-import org.entando.entando.aps.system.services.api.IApiErrorCodes;
-import org.entando.entando.aps.system.services.api.model.ApiException;
 import org.entando.entando.aps.system.services.oauth2.IApiOAuth2TokenManager;
 import org.entando.entando.aps.system.services.oauth2.model.OAuth2Token;
+import org.entando.entando.web.common.annotation.RestAccessControl;
 import org.entando.entando.web.common.exceptions.EntandoAuthorizationException;
-import org.entando.entando.web.common.exceptions.EntandoTokenExiredException;
+import org.entando.entando.web.common.exceptions.EntandoTokenException;
+import org.entando.entando.web.common.exceptions.RestServerError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,51 +53,57 @@ public class EntandoOauth2Interceptor extends HandlerInterceptorAdapter {
         if (handler instanceof HandlerMethod) {
             HandlerMethod method = (HandlerMethod) handler;
             if (method.getMethod().isAnnotationPresent(RequestMapping.class)) {
-                RequestMapping rqm = method.getMethodAnnotation(RequestMapping.class);
-                String permission = rqm.name();
+                RestAccessControl rqm = method.getMethodAnnotation(RestAccessControl.class);
+                String permission = rqm.permission();
                 this.extractOAuthParameters(request, permission);
             }
         }
         return true;
     }
 
-    protected void extractOAuthParameters(HttpServletRequest request, String permission) throws ApiException {
+    protected void extractOAuthParameters(HttpServletRequest request, String permission) {
         try {
             logger.info("Permission required: {}", permission);
             OAuthAccessResourceRequest requestMessage = new OAuthAccessResourceRequest(request, ParameterStyle.HEADER);
 
-            // Get the access token
             String accessToken = requestMessage.getAccessToken();
-            final OAuth2Token token = oAuth2TokenManager.getApiOAuth2Token(accessToken);
-            if (token != null) {
-                if (!token.getAccessToken().equals(accessToken)) {
-                    throw new ApiException(IApiErrorCodes.API_AUTHENTICATION_REQUIRED, "Token does not match", Response.Status.UNAUTHORIZED);
-                } // check if access token is expired
-                else if (token.getExpiresIn().getTime() < System.currentTimeMillis()) {
-                    throw new EntandoTokenExiredException(null, request, null);
-
-                }
-                String username = token.getClientId();
-                UserDetails user = authenticationProviderManager.getUser(username);
-                if (user != null) {
-                    logger.info("User {} requesting resource that requires {} permission ", username, permission);
-                    if (permission != null) {
-                        if (!authorizationManager.isAuthOnPermission(user, permission)) {
-                            throw new EntandoAuthorizationException(null, request, username);
-                        }
-                    }
-                } else {
-                    logger.info("User {} not found ", username);
-                }
-            } else {
-                if (accessToken != null) {
-                    throw new ApiException(IApiErrorCodes.API_AUTHENTICATION_REQUIRED, "Token not found, request new one", Response.Status.UNAUTHORIZED);
-                }
-                throw new ApiException(IApiErrorCodes.API_AUTHENTICATION_REQUIRED, "Authentication Required", Response.Status.UNAUTHORIZED);
+            if (StringUtils.isBlank(accessToken)) {
+                throw new EntandoTokenException("no access token found", request, null);
             }
+
+            final OAuth2Token token = oAuth2TokenManager.getApiOAuth2Token(accessToken);
+            this.validateToken(request, accessToken, token);
+
+            String username = token.getClientId();
+            this.checkAuthorization(username, permission, request);
+
         } catch (OAuthSystemException | ApsSystemException | OAuthProblemException ex) {
             logger.error("System exception {}", ex.getMessage());
-            throw new ApiException(IApiErrorCodes.SERVER_ERROR, ex.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+            throw new RestServerError("error parsing OAuth parameters", ex);
+        }
+    }
+
+    protected void checkAuthorization(String username, String permission, HttpServletRequest request) throws ApsSystemException {
+        UserDetails user = authenticationProviderManager.getUser(username);
+        if (user != null) {
+            logger.info("User {} requesting resource that requires {} permission ", username, permission);
+            if (StringUtils.isNotBlank(permission)) {
+                if (!authorizationManager.isAuthOnPermission(user, permission)) {
+                    throw new EntandoAuthorizationException(null, request, username);
+                }
+            }
+        } else {
+            logger.info("User {} not found ", username);
+        }
+    }
+
+    protected void validateToken(HttpServletRequest request, String accessToken, final OAuth2Token token) {
+        if (null == token) {
+            throw new EntandoTokenException("no token found", request, null);
+        } else if (!token.getAccessToken().equals(accessToken)) {
+            throw new EntandoTokenException("invalid token", request, null);
+        } else if (token.getExpiresIn().getTime() < System.currentTimeMillis()) {
+            throw new EntandoTokenException("expired token", request, null);
         }
     }
 

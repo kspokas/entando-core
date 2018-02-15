@@ -213,7 +213,6 @@ public class GroupControllerTest {
         String response = result.andReturn().getResponse().getContentAsString();
         System.out.println(response);
         result.andExpect(status().isUnauthorized());
-        ;
     }
 
 
