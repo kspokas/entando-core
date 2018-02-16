@@ -22,12 +22,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.agiletec.aps.system.common.AbstractSearcherDAO;
 import com.agiletec.aps.system.common.entity.model.ApsEntityRecord;
 import com.agiletec.aps.system.common.entity.model.EntitySearchFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract class extended by those DAO that perform searches on entities.
@@ -424,7 +423,7 @@ public abstract class AbstractEntitySearcherDAO extends AbstractSearcherDAO impl
 		for (int i=0; i<filters.length; i++) {
 			EntitySearchFilter filter = filters[i];
 			if (filter.getKey() != null && !filter.isAttributeFilter()) {
-				hasAppendWhereClause = this.addMetadataFieldFilterQueryBlock(filter, query, hasAppendWhereClause);
+                hasAppendWhereClause = this.addMetadataFieldFilterQueryBlockForSelect(filter, query, hasAppendWhereClause);
 			}
 		}
 		return hasAppendWhereClause;

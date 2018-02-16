@@ -89,7 +89,7 @@ public class GroupServiceIntegrationTest extends BaseTestCase {
     public void testGetGroups_filter() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         RestListRequest<Filter> restListRequest = new RestListRequest<Filter>();
-        restListRequest.addFilter(new Filter("groupname", "free"));
+        restListRequest.addFilter(new Filter("groupname", "fr"));
 
         PagedMetadata<GroupDto> res = this.groupService.getGroups(restListRequest);
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(res);

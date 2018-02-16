@@ -42,7 +42,6 @@ public class Filter {
     public Filter(String attribute, String value) {
         this.attribute = attribute;
         this.value = value;
-
     }
 
     public Filter(String attribute, String value, String operator) {
@@ -57,7 +56,8 @@ public class Filter {
     @SuppressWarnings("rawtypes")
     public FieldSearchFilter getFieldSearchFilter() {
 
-        FieldSearchFilter filter = new FieldSearchFilter(StringEscapeUtils.escapeSql(this.getAttributeName()), StringEscapeUtils.escapeSql(this.getValue()), false);
+        FieldSearchFilter filter = new FieldSearchFilter(StringEscapeUtils.escapeSql(this.getAttributeName()), StringEscapeUtils.escapeSql(this.getValue()), true);
         return filter;
     }
+
 }

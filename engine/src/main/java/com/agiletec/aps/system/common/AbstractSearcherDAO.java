@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * This class presents utility method for searching on db table throw Field search filter.
  * @author E.Santoboni
  */
+@SuppressWarnings(value = {"serial", "rawtypes"})
 public abstract class AbstractSearcherDAO extends AbstractDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractSearcherDAO.class);
@@ -330,9 +331,14 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
 
     protected String createQueryString(FieldSearchFilter[] filters, boolean isCount, boolean selectAll) {
         StringBuffer query = this.createBaseQueryBlock(filters, isCount, selectAll);
-        boolean hasAppendWhereClause = this.appendMetadataFieldFilterQueryBlocks(filters, query, false);
+
+        boolean hasAppendWhereClause = false;
+        if (isCount) {
+            hasAppendWhereClause = this.appendMetadataFieldFilterQueryBlocksForCount(filters, query, false);
+        }
 
         if (!isCount) {
+            hasAppendWhereClause = this.appendMetadataFieldFilterQueryBlocks(filters, query, false);
             this.appendLimitQueryBlock(filters, query, hasAppendWhereClause);
             boolean ordered = appendOrderQueryBlocks(filters, query, false);
         }
@@ -358,7 +364,6 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
         if (isCount) {
             query = this.createMasterCountQueryBlock(filters, selectAll);
         } else {
-
             query = this.createMasterSelectQueryBlock(filters, selectAll);
         }
         return query;
@@ -409,6 +414,19 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
         }
     }
 
+    protected boolean appendMetadataFieldFilterQueryBlocksForCount(FieldSearchFilter[] filters, StringBuffer query, boolean hasAppendWhereClause) {
+        if (filters == null) {
+            return hasAppendWhereClause;
+        }
+        for (int i = 0; i < filters.length; i++) {
+            FieldSearchFilter filter = filters[i];
+            if (filter.getKey() != null) {
+                hasAppendWhereClause = this.addMetadataFieldFilterQueryBlockForCount(filter, query, hasAppendWhereClause);
+            }
+        }
+        return hasAppendWhereClause;
+    }
+
     protected boolean appendMetadataFieldFilterQueryBlocks(FieldSearchFilter[] filters, StringBuffer query, boolean hasAppendWhereClause) {
         if (filters == null) {
             return hasAppendWhereClause;
@@ -416,16 +434,24 @@ public abstract class AbstractSearcherDAO extends AbstractDAO {
         for (int i = 0; i < filters.length; i++) {
             FieldSearchFilter filter = filters[i];
             if (filter.getKey() != null) {
-                hasAppendWhereClause = this.addMetadataFieldFilterQueryBlock(filter, query, hasAppendWhereClause);
+                hasAppendWhereClause = this.addMetadataFieldFilterQueryBlockForSelect(filter, query, hasAppendWhereClause);
             }
         }
         return hasAppendWhereClause;
     }
 
-    protected boolean addMetadataFieldFilterQueryBlock(FieldSearchFilter filter, StringBuffer query, boolean hasAppendWhereClause) {
+    protected boolean addMetadataFieldFilterQueryBlockForCount(FieldSearchFilter filter, StringBuffer query, boolean hasAppendWhereClause) {
+        return addFilters(filter, query, hasAppendWhereClause);
+    }
+
+    protected boolean addMetadataFieldFilterQueryBlockForSelect(FieldSearchFilter filter, StringBuffer query, boolean hasAppendWhereClause) {
         if (filter.isLikeOption() && this.isForceTextCaseSearch()) {
             return hasAppendWhereClause;
         }
+        return addFilters(filter, query, hasAppendWhereClause);
+    }
+
+    protected boolean addFilters(FieldSearchFilter filter, StringBuffer query, boolean hasAppendWhereClause) {
         hasAppendWhereClause = this.verifyWhereClauseAppend(query, hasAppendWhereClause);
         String tableFieldName = this.getTableFieldName(filter.getKey());
         if (filter.getAllowedValues() != null && filter.getAllowedValues().size() > 0) {
