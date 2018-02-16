@@ -43,6 +43,19 @@ public class RestExceptionHandler {
         this.messageSource = messageSource;
     }
 
+    @ExceptionHandler(value = RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse processRuntimeExceptionException(RuntimeException ex) {
+        logger.debug("Handling {} error", ex.getClass().getSimpleName());
+        RestResponse response = new RestResponse();
+        RestError error = new RestError("101", this.resolveLocalizedErrorMessage("GENERIC_ERROR", new Object[]{ex.getMessage()}));
+        List<RestError> errors = new ArrayList<>();
+        errors.add(error);
+        response.setErrors(errors);
+        return response;
+    }
+
     @ExceptionHandler(value = EntandoAuthorizationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
