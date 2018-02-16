@@ -40,7 +40,7 @@ public class GroupServiceIntegrationTest extends BaseTestCase {
         System.out.println(json);
         assertThat(res.getPage(), is(0));
         assertThat(res.getSize(), is(5));
-        assertThat(res.getLast(), is(0));
+        assertThat(res.getLast(), is(1));
         assertThat(res.getCount(), is(6));
 
         //
