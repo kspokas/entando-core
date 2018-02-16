@@ -78,6 +78,7 @@ public class GroupControllerTest {
 
         final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename("rest/messages");
+        messageSource.setUseCodeAsDefaultMessage(true);
 
         ExceptionHandlerExceptionResolver exceptionResolver = new ExceptionHandlerExceptionResolver() {
 
