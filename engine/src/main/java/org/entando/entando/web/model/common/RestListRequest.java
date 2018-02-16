@@ -1,6 +1,7 @@
 package org.entando.entando.web.model.common;
 
 import com.agiletec.aps.system.common.FieldSearchFilter;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -66,19 +67,29 @@ public class RestListRequest<T extends Filter> {
                 filters = ArrayUtils.add(filters, filter.getFieldSearchFilter());
             }
         }
-        if (StringUtils.isNotBlank(this.getSort())) {
-            FieldSearchFilter sort = new FieldSearchFilter(this.getSort());
-            if (StringUtils.isNotBlank(this.getDirection())) {
-                sort.setOrder(FieldSearchFilter.Order.valueOf(this.getDirection()));
-            }
-            filters = ArrayUtils.add(filters, sort);
-        }
+        filters = addSortFilter(filters);
+        filters = addPaginationFilter(filters);
+        return filters;
+    }
 
+    @SuppressWarnings("rawtypes")
+    private FieldSearchFilter[] addPaginationFilter(FieldSearchFilter[] filters) {
         if (null != this.getPageSize()) {
             FieldSearchFilter pageFilter = new FieldSearchFilter(this.getPageSize(), this.getOffset());
             filters = ArrayUtils.add(filters, pageFilter);
         }
+        return filters;
+    }
 
+    @SuppressWarnings("rawtypes")
+    private FieldSearchFilter[] addSortFilter(FieldSearchFilter[] filters) {
+        if (StringUtils.isNotBlank(StringEscapeUtils.escapeSql(this.getSort()))) {
+            FieldSearchFilter sort = new FieldSearchFilter(this.getSort());
+            if (StringUtils.isNotBlank(this.getDirection())) {
+                sort.setOrder(FieldSearchFilter.Order.valueOf(StringEscapeUtils.escapeSql(this.getDirection())));
+            }
+            filters = ArrayUtils.add(filters, sort);
+        }
         return filters;
     }
 

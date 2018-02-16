@@ -1,6 +1,8 @@
 package org.entando.entando.web.model.common;
 
 import com.agiletec.aps.system.common.FieldSearchFilter;
+import org.apache.commons.lang.StringEscapeUtils;
+
 
 public class Filter {
 
@@ -54,7 +56,8 @@ public class Filter {
 
     @SuppressWarnings("rawtypes")
     public FieldSearchFilter getFieldSearchFilter() {
-        FieldSearchFilter filter = new FieldSearchFilter(this.getAttributeName(), this.getValue(), false);
+
+        FieldSearchFilter filter = new FieldSearchFilter(StringEscapeUtils.escapeSql(this.getAttributeName()), StringEscapeUtils.escapeSql(this.getValue()), false);
         return filter;
     }
 }
