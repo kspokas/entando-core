@@ -25,7 +25,8 @@ import org.slf4j.LoggerFactory;
 public class QueryLimitResolver {
 
     //TODO MOVE
-    private static final String JDBC_DRIVER_DERBY_EMBEDDED_DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
+    private static final String JDBC_DRIVER_DERBY_EMBEDDED = "org.apache.derby.jdbc.EmbeddedDriver";
+    private static final String JDBC_DRIVER_POSTGRES = "org.postgresql.Driver";
 
     private static final Logger logger = LoggerFactory.getLogger(QueryLimitResolver.class);
 
@@ -38,10 +39,11 @@ public class QueryLimitResolver {
         String limitBlock = null;
         String driverClassName = extractDriverClassName(dataSource);
         logger.trace("detected driver: {}", driverClassName);
-        if (driverClassName.equalsIgnoreCase(JDBC_DRIVER_DERBY_EMBEDDED_DRIVER)) {
+        if (driverClassName.equalsIgnoreCase(JDBC_DRIVER_DERBY_EMBEDDED)) {
             limitBlock = String.format(" OFFSET %d ROWS FETCH NEXT %d ROWS ONLY ", new Object[]{offset, limit});
-            
-        } else  if (driverClassName.equalsIgnoreCase("TODO")) {
+        } else if (driverClassName.equalsIgnoreCase(JDBC_DRIVER_POSTGRES)) {
+            limitBlock = String.format(" OFFSET %d ROWS FETCH NEXT %d ROWS ONLY ", new Object[]{offset, limit});
+        } else if (driverClassName.equalsIgnoreCase("TODO")) {
             throw new UnsupportedOperationException(driverClassName + " not implemented!");
         }  else {
             throw new UnsupportedOperationException(driverClassName + " not implemented!");
