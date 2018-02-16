@@ -1,9 +1,6 @@
 package org.entando.entando.web.group;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.agiletec.aps.system.services.authorization.AuthorizationManager;
 import com.agiletec.aps.system.services.authorization.IAuthorizationManager;
@@ -16,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.entando.entando.aps.system.services.group.GroupService;
 import org.entando.entando.aps.system.services.group.model.GroupDto;
 import org.entando.entando.aps.system.services.oauth2.IApiOAuth2TokenManager;
-import org.entando.entando.web.common.handlers.RestExceptionHandler;
+import org.entando.entando.web.AbstractControllerTest;
 import org.entando.entando.web.common.interceptor.EntandoOauth2Interceptor;
 import org.entando.entando.web.common.model.PagedMetadata;
 import org.entando.entando.web.model.common.RestListRequest;
@@ -28,16 +25,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.method.annotation.ExceptionHandlerMethodResolver;
-import org.springframework.web.servlet.HandlerExceptionResolver;
-import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
-import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
@@ -49,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-public class GroupControllerTest {
+public class GroupControllerTest extends AbstractControllerTest {
 
     private MockMvc mockMvc;
 
@@ -73,48 +63,17 @@ public class GroupControllerTest {
     private EntandoOauth2Interceptor entandoOauth2Interceptor;
 
 
-    //può anche andare fuori...
-    private ExceptionHandlerExceptionResolver createExceptionResolver() {
-
-        final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("rest/messages");
-        messageSource.setUseCodeAsDefaultMessage(true);
-
-        ExceptionHandlerExceptionResolver exceptionResolver = new ExceptionHandlerExceptionResolver() {
-
-            @Override
-            protected ServletInvocableHandlerMethod getExceptionHandlerMethod(HandlerMethod handlerMethod,Exception exception) {
-                Method method = new ExceptionHandlerMethodResolver(RestExceptionHandler.class).resolveMethod(exception);
-                RestExceptionHandler validationHandler = new RestExceptionHandler();
-                validationHandler.setMessageSource(messageSource);
-                return new ServletInvocableHandlerMethod(validationHandler, method);
-            }
-        };
-
-        exceptionResolver.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-        exceptionResolver.afterPropertiesSet();
-        return exceptionResolver;
-    }
-    // @formatter:on
-
 
     @Before
     public void setUp() throws Exception {
-
         MockitoAnnotations.initMocks(this);
-
-
-        List<HandlerExceptionResolver> handlerExceptionResolvers = new ArrayList<>();
-        ExceptionHandlerExceptionResolver exceptionHandlerExceptionResolver = createExceptionResolver();
-        handlerExceptionResolvers.add(exceptionHandlerExceptionResolver);
-
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                                  .addInterceptors(entandoOauth2Interceptor)
-                                 .setHandlerExceptionResolvers(handlerExceptionResolvers)
-                .build();
-
+                                 .setHandlerExceptionResolvers(createHandlerExceptionResolver())
+                                 .build();
         controller.setGroupService(groupService);
     }
+
 
     @Test
     public void should_load_the_list_of_groups() throws Exception {
@@ -171,7 +130,7 @@ public class GroupControllerTest {
         UserDetails user = new OAuth2TestUtils.UserBuilder("jack_bauer", "0x24")
                 .grantedToMagageRoles(Group.FREE_GROUP_NAME)
                 .build();
-        
+
         when(apiOAuth2TokenManager.getApiOAuth2Token(Mockito.anyString())).thenReturn(OAuth2TestUtils.getOAuth2Token(user.getUsername(), accessToken));
         when(authenticationProviderManager.getUser(user.getUsername())).thenReturn(user);
         when(authorizationManager.isAuthOnPermission(any(UserDetails.class), anyString())).then(new Answer<Boolean>() {
@@ -182,7 +141,7 @@ public class GroupControllerTest {
                 return new AuthorizationManager().isAuthOnPermission(user, permissionName);
             }
         });
-        
+
         // @formatter:on
 
         String mockJsonResult = "{\n" +
@@ -201,7 +160,7 @@ public class GroupControllerTest {
         PagedMetadata<GroupDto> mockResult = (PagedMetadata<GroupDto>) this.createPagedMetadata(mockJsonResult);
         when(groupService.getGroups(any(RestListRequest.class))).thenReturn(mockResult);
         // @formatter:off
- 
+
 
         ResultActions result = mockMvc.perform(
                                                get("/groups")
@@ -210,8 +169,8 @@ public class GroupControllerTest {
                                                .param("filter[0].attribute", "code")
                                                .param("filter[0].value", "free")
                                                .header("Authorization", "Bearer " + accessToken)
-                                               );
-// @formatter:on
+                );
+        // @formatter:on
         result.andExpect(status().isOk());
         //        String response = result.andReturn().getResponse().getContentAsString();
         //        System.out.println(response);
