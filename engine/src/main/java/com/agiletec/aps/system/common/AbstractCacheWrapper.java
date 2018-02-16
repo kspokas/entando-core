@@ -21,32 +21,39 @@ import org.springframework.cache.CacheManager;
  */
 public abstract class AbstractCacheWrapper {
 
-	private CacheManager _springCacheManager;
+    protected static enum Action {
+        ADD,
+        UPDATE,
+        DELETE
+    }
 
-	protected abstract String getCacheName();
+    private CacheManager springCacheManager;
 
-	protected <T> T get(String name, Class<T> requiredType) {
-		return this.get(this.getCache(), name, requiredType);
-	}
+    protected CacheManager getSpringCacheManager() {
+        return springCacheManager;
+    }
 
-	protected <T> T get(Cache cache, String name, Class<T> requiredType) {
-		Object value = cache.get(name);
-		if (value instanceof Cache.ValueWrapper) {
-			value = ((Cache.ValueWrapper) value).get();
-		}
-		return (T) value;
-	}
+    public void setSpringCacheManager(CacheManager springCacheManager) {
+        this.springCacheManager = springCacheManager;
+    }
 
-	protected Cache getCache() {
-		return this.getSpringCacheManager().getCache(this.getCacheName());
-	}
+    protected abstract String getCacheName();
 
-	protected CacheManager getSpringCacheManager() {
-		return _springCacheManager;
-	}
+    protected <T> T get(String name, Class<T> requiredType) {
+        return this.get(this.getCache(), name, requiredType);
+    }
 
-	public void setSpringCacheManager(CacheManager springCacheManager) {
-		this._springCacheManager = springCacheManager;
-	}
+    protected <T> T get(Cache cache, String name, Class<T> requiredType) {
+        Object value = cache.get(name);
+        if (value instanceof Cache.ValueWrapper) {
+            value = ((Cache.ValueWrapper) value).get();
+        }
+        return (T) value;
+    }
+
+    protected Cache getCache() {
+        return this.getSpringCacheManager().getCache(this.getCacheName());
+    }
+
 
 }
