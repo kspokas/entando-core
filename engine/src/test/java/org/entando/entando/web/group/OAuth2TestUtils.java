@@ -23,7 +23,11 @@ public class OAuth2TestUtils {
         return oAuth2Token;
     }
 
-    public static String getAccessToken(boolean valid) throws Exception {
+    public static String getValidAccessToken() {
+        return getAccessToken(true);
+    }
+
+    public static String getAccessToken(boolean valid) {
         if (valid) {
             return "valid_token";
         }
@@ -80,8 +84,8 @@ public class OAuth2TestUtils {
             return this;
         }
 
-        public UserBuilder grantedToMagageRoles(String groupName) {
-
+        public UserBuilder grantedToManageRoles(String groupName) {
+            //TODO permission name constants should be placed elsewhere
             OAuth2TestUtils.addAuthorization(this.user, groupName, "groupEditors", new String[]{"group_read", "group_write", "group_delete"});
             return this;
         }

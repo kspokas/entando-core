@@ -1,15 +1,11 @@
 package org.entando.entando.web.group;
 
-import java.io.IOException;
-
+import com.agiletec.aps.system.exception.ApsSystemException;
 import com.agiletec.aps.system.services.authorization.AuthorizationManager;
 import com.agiletec.aps.system.services.authorization.IAuthorizationManager;
 import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.user.IAuthenticationProviderManager;
 import com.agiletec.aps.system.services.user.UserDetails;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.entando.entando.aps.system.services.group.GroupService;
 import org.entando.entando.aps.system.services.group.model.GroupDto;
 import org.entando.entando.aps.system.services.oauth2.IApiOAuth2TokenManager;
@@ -52,7 +48,6 @@ public class GroupControllerTest extends AbstractControllerTest {
     @Mock
     private IAuthorizationManager authorizationManager;
 
-
     @Mock
     private GroupService groupService;
 
@@ -63,7 +58,6 @@ public class GroupControllerTest extends AbstractControllerTest {
     private EntandoOauth2Interceptor entandoOauth2Interceptor;
 
 
-
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -71,31 +65,14 @@ public class GroupControllerTest extends AbstractControllerTest {
                                  .addInterceptors(entandoOauth2Interceptor)
                                  .setHandlerExceptionResolvers(createHandlerExceptionResolver())
                                  .build();
-        controller.setGroupService(groupService);
     }
-
 
     @Test
     public void should_load_the_list_of_groups() throws Exception {
-        String accessToken = OAuth2TestUtils.getAccessToken(true);
-
-        // @formatter:off
         UserDetails user = new OAuth2TestUtils.UserBuilder("jack_bauer", "0x24")
-                .grantedToMagageRoles(Group.FREE_GROUP_NAME)
+                .grantedToManageRoles(Group.FREE_GROUP_NAME)
                 .build();
-
-        when(apiOAuth2TokenManager.getApiOAuth2Token(Mockito.anyString())).thenReturn(OAuth2TestUtils.getOAuth2Token(user.getUsername(), accessToken));
-        when(authenticationProviderManager.getUser(user.getUsername())).thenReturn(user);
-        when(authorizationManager.isAuthOnPermission(any(UserDetails.class), anyString())).then(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                UserDetails user = (UserDetails) invocation.getArguments()[0];
-                String permissionName = (String) invocation.getArguments()[1];
-                return new AuthorizationManager().isAuthOnPermission(user, permissionName);
-            }
-        });
-
-        // @formatter:on
+        String accessToken = mockOAuthInterceptor(user);
 
         String mockJsonResult = "{\n" +
                 "  \"page\" : 1,\n" +
@@ -113,10 +90,15 @@ public class GroupControllerTest extends AbstractControllerTest {
         PagedMetadata<GroupDto> mockResult = (PagedMetadata<GroupDto>) this.createPagedMetadata(mockJsonResult);
         when(groupService.getGroups(any(RestListRequest.class))).thenReturn(mockResult);
 
-        ResultActions result = mockMvc.perform(get("/groups").param("pageNum", "1").param("pageSize", "4").header("Authorization", "Bearer " + accessToken));
+        // @formatter:off
+        ResultActions result = mockMvc.perform(
+                                               get("/groups")
+                                               .param("pageNum", "1")
+                                               .param("pageSize", "4")
+                                               .header("Authorization", "Bearer " + accessToken)
+                );
+        // @formatter:on
         result.andExpect(status().isOk());
-        //        String response = result.andReturn().getResponse().getContentAsString();
-        //        System.out.println(response);
         result.andExpect(jsonPath("$.payload", hasSize(2)));
         result.andExpect(jsonPath("$.metadata.page", is(1)));
         result.andExpect(jsonPath("$.metadata.size", is(2)));
@@ -124,25 +106,11 @@ public class GroupControllerTest extends AbstractControllerTest {
 
     @Test
     public void should_load_the_list_of_groups_2() throws Exception {
-        String accessToken = OAuth2TestUtils.getAccessToken(true);
 
-        // @formatter:off
         UserDetails user = new OAuth2TestUtils.UserBuilder("jack_bauer", "0x24")
-                .grantedToMagageRoles(Group.FREE_GROUP_NAME)
+                .grantedToManageRoles(Group.FREE_GROUP_NAME)
                 .build();
-
-        when(apiOAuth2TokenManager.getApiOAuth2Token(Mockito.anyString())).thenReturn(OAuth2TestUtils.getOAuth2Token(user.getUsername(), accessToken));
-        when(authenticationProviderManager.getUser(user.getUsername())).thenReturn(user);
-        when(authorizationManager.isAuthOnPermission(any(UserDetails.class), anyString())).then(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                UserDetails user = (UserDetails) invocation.getArguments()[0];
-                String permissionName = (String) invocation.getArguments()[1];
-                return new AuthorizationManager().isAuthOnPermission(user, permissionName);
-            }
-        });
-
-        // @formatter:on
+        String accessToken = mockOAuthInterceptor(user);
 
         String mockJsonResult = "{\n" +
                                 "  \"page\" : 1,\n" +
@@ -159,9 +127,8 @@ public class GroupControllerTest extends AbstractControllerTest {
                                 "}";
         PagedMetadata<GroupDto> mockResult = (PagedMetadata<GroupDto>) this.createPagedMetadata(mockJsonResult);
         when(groupService.getGroups(any(RestListRequest.class))).thenReturn(mockResult);
+
         // @formatter:off
-
-
         ResultActions result = mockMvc.perform(
                                                get("/groups")
                                                .param("pageNum", "1")
@@ -172,41 +139,19 @@ public class GroupControllerTest extends AbstractControllerTest {
                 );
         // @formatter:on
         result.andExpect(status().isOk());
-        //        String response = result.andReturn().getResponse().getContentAsString();
-        //        System.out.println(response);
         result.andExpect(jsonPath("$.payload", hasSize(2)));
         result.andExpect(jsonPath("$.metadata.page", is(1)));
         result.andExpect(jsonPath("$.metadata.size", is(2)));
     }
 
-    private Object createPagedMetadata(String json) throws IOException, JsonParseException, JsonMappingException {
-        ObjectMapper mapper = new ObjectMapper();
-
-        Object result = mapper.readValue(json, PagedMetadata.class);
-        return result;
-    }
 
     @SuppressWarnings("unchecked")
     @Test
     public void should_be_unauthorized() throws Exception {
-        String accessToken = OAuth2TestUtils.getAccessToken(true);
-
-        // @formatter:off
         UserDetails user = new OAuth2TestUtils.UserBuilder("jack_bauer", "0x24")
                 .withGroup(Group.FREE_GROUP_NAME)
                 .build();
-
-        when(apiOAuth2TokenManager.getApiOAuth2Token(Mockito.anyString())).thenReturn(OAuth2TestUtils.getOAuth2Token(user.getUsername(), accessToken));
-        when(authenticationProviderManager.getUser(user.getUsername())).thenReturn(user);
-        when(authorizationManager.isAuthOnPermission(any(UserDetails.class), anyString())).then(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                UserDetails user = (UserDetails) invocation.getArguments()[0];
-                String permissionName = (String) invocation.getArguments()[1];
-                return new AuthorizationManager().isAuthOnPermission(user, permissionName);
-            }
-        });
-        // @formatter:on
+        String accessToken = mockOAuthInterceptor(user);
 
         String mockJsonResult = "{\n" +
                                 "  \"page\" : 1,\n" +
@@ -224,7 +169,12 @@ public class GroupControllerTest extends AbstractControllerTest {
         PagedMetadata<GroupDto> mockResult = (PagedMetadata<GroupDto>) this.createPagedMetadata(mockJsonResult);
         when(groupService.getGroups(any(RestListRequest.class))).thenReturn(mockResult);
 
-        ResultActions result = mockMvc.perform(get("/groups").header("Authorization", "Bearer " + accessToken));
+        // @formatter:off
+        ResultActions result = mockMvc.perform(
+                                               get("/groups")
+                                               .header("Authorization", "Bearer " + accessToken)
+                                               );
+        // @formatter:on
 
         String response = result.andReturn().getResponse().getContentAsString();
         System.out.println(response);
@@ -232,6 +182,21 @@ public class GroupControllerTest extends AbstractControllerTest {
     }
 
 
+    protected String mockOAuthInterceptor(UserDetails user) throws Exception, ApsSystemException {
+        String accessToken = OAuth2TestUtils.getValidAccessToken();
+        when(apiOAuth2TokenManager.getApiOAuth2Token(Mockito.anyString())).thenReturn(OAuth2TestUtils.getOAuth2Token(user.getUsername(), accessToken));
+        when(authenticationProviderManager.getUser(user.getUsername())).thenReturn(user);
+        when(authorizationManager.isAuthOnPermission(any(UserDetails.class), anyString())).then(new Answer<Boolean>() {
+
+            @Override
+            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                UserDetails user = (UserDetails) invocation.getArguments()[0];
+                String permissionName = (String) invocation.getArguments()[1];
+                return new AuthorizationManager().isAuthOnPermission(user, permissionName);
+            }
+        });
+        return accessToken;
+    }
 
 
 }

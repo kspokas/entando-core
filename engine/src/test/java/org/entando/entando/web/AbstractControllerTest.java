@@ -1,10 +1,15 @@
 package org.entando.entando.web;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.entando.entando.web.common.handlers.RestExceptionHandler;
+import org.entando.entando.web.common.model.PagedMetadata;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.method.HandlerMethod;
@@ -60,6 +65,12 @@ public class AbstractControllerTest {
         exceptionResolver.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
         exceptionResolver.afterPropertiesSet();
         return exceptionResolver;
+    }
+
+    protected Object createPagedMetadata(String json) throws IOException, JsonParseException, JsonMappingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Object result = mapper.readValue(json, PagedMetadata.class);
+        return result;
     }
 
 }
