@@ -13,16 +13,18 @@
  */
 package org.entando.entando.aps.system.services.i18n.inlinediting;
 
-import com.agiletec.aps.system.exception.ApsSystemException;
-import com.agiletec.aps.util.ApsProperties;
+import java.util.Iterator;
+
+import javax.ws.rs.core.Response;
+
 import org.entando.entando.aps.system.services.api.IApiErrorCodes;
 import org.entando.entando.aps.system.services.api.model.ApiException;
 import org.entando.entando.aps.system.services.i18n.inlinediting.model.JAXBI18nLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Response;
-import java.util.Iterator;
+import com.agiletec.aps.system.exception.ApsSystemException;
+import com.agiletec.aps.util.ApsProperties;
 
 /**
  * @author E.Santoboni
@@ -31,19 +33,23 @@ public class ApiI18nLabelInterface extends org.entando.entando.aps.system.servic
 
     private static final Logger _logger = LoggerFactory.getLogger(ApiI18nLabelInterface.class);
 
-    public void updateInlineLabel(JAXBI18nLabel jaxbI18nLabel) throws ApiException {
+    public void updateInlineLabel(JAXBI18nLabel jaxbI18nLabel) throws ApiException, Throwable {
         try {
             this.checkLabels(jaxbI18nLabel);
             String key = jaxbI18nLabel.getKey();
             ApsProperties labelGroups = this.getI18nManager().getLabelGroup(key);
-            _logger.info("KEY ->  {} ", key);
+            System.out.println("KEY -> " + key);
             boolean isEdit = (null != labelGroups);
             if (!isEdit) {
                 labelGroups = new ApsProperties();
-
+                System.out.println("*** ADD ***");
             } else {
-                //
+                System.out.println("*** EDIT ***");
             }
+            //if (null == labelGroups) {
+            //throw new ApiException(IApiErrorCodes.API_VALIDATION_ERROR,
+            //		"Label with key '" + key + "' does not exist", Response.Status.CONFLICT);
+            //}
             ApsProperties labels = jaxbI18nLabel.extractLabels();
             Iterator<Object> iterator = labels.keySet().iterator();
             while (iterator.hasNext()) {
@@ -52,14 +58,16 @@ public class ApiI18nLabelInterface extends org.entando.entando.aps.system.servic
             }
             if (isEdit) {
                 this.getI18nManager().updateLabelGroup(key, labelGroups);
-                _logger.info("*** EDIT DONE *** -> {}", labelGroups);
+                System.out.println("*** EDIT DONE *** -> " + labelGroups);
             } else {
                 this.getI18nManager().addLabelGroup(key, labelGroups);
-                _logger.info("*** ADD DONE *** -> {}", labelGroups);
+                System.out.println("*** ADD DONE *** -> " + labelGroups);
             }
-        } catch (ApiException | ApsSystemException t) {
-            _logger.error("Error updating label {} ", t);
-            throw new ApiException("Error updating labels", t);
+        } catch (ApiException ae) {
+            throw ae;
+        } catch (Throwable t) {
+            _logger.error("Error updating label", t);
+            throw new ApsSystemException("Error updating labels", t);
         }
     }
 
@@ -75,7 +83,14 @@ public class ApiI18nLabelInterface extends org.entando.entando.aps.system.servic
                 throw new ApiException(IApiErrorCodes.API_VALIDATION_ERROR,
                         "Label list can't be empty", Response.Status.CONFLICT);
             }
-
+            /*
+			Lang defaultLang = this.getLangManager().getDefaultLang();
+			Object defaultLangValue = labels.get(defaultLang.getCode());
+			if (null == defaultLangValue || defaultLangValue.toString().trim().length() == 0) {
+				throw new ApiException(IApiErrorCodes.API_VALIDATION_ERROR,
+						"Label list must contain a label for the default language '" + defaultLang.getCode() + "'", Response.Status.CONFLICT);
+			}
+             */
             Iterator<Object> labelCodeIter = labels.keySet().iterator();
             while (labelCodeIter.hasNext()) {
                 Object langCode = labelCodeIter.next();
@@ -86,8 +101,7 @@ public class ApiI18nLabelInterface extends org.entando.entando.aps.system.servic
                 }
             }
         } catch (ApiException ae) {
-            _logger.error("Error method checkLabels ", ae);
-            throw new ApiException("Error method checkLabels", ae) ;
+            throw ae;
         }
     }
 

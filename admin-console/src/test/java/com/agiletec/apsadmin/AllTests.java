@@ -59,83 +59,83 @@ import org.entando.entando.apsadmin.user.TestUserProfileFinderAction;
 
 public class AllTests {
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite("Test for apsadmin");
-        System.out.println("Test for apsadmin");
+	public static Test suite() {
+		TestSuite suite = new TestSuite("Test for apsadmin");
+		System.out.println("Test for apsadmin");
 
-        //User
-        suite.addTestSuite(TestUserAction.class);
-        suite.addTestSuite(TestUserAuthorizationAction.class);
-        suite.addTestSuite(TestUserFinderAction.class);
-        suite.addTestSuite(TestUserProfileAction.class);
-        suite.addTestSuite(TestUserProfileFinderAction.class);
+		// Lang
+		suite.addTestSuite(TestLangAction.class);
+		suite.addTestSuite(TestLangFinderAction.class);
 
-        // Lang
-        suite.addTestSuite(TestLangAction.class);
-        suite.addTestSuite(TestLangFinderAction.class);
+		// LocalString
+		suite.addTestSuite(TestLocaleStringAction.class);
+		suite.addTestSuite(TestLocaleStringFinderAction.class);
 
-        // LocalString
-        suite.addTestSuite(TestLocaleStringAction.class);
-        suite.addTestSuite(TestLocaleStringFinderAction.class);
+		suite.addTestSuite(TestBaseAdminAction.class);
+		suite.addTestSuite(TestSystemParamsUtils.class);
 
-        suite.addTestSuite(TestBaseAdminAction.class);
-        suite.addTestSuite(TestSystemParamsUtils.class);
+		// Common
+		suite.addTestSuite(TestDispatchForward.class);
+		suite.addTestSuite(TestLoginAction.class);
+		suite.addTestSuite(TestBaseCommonAction.class);
+		suite.addTestSuite(TestCurrentUserProfileAction.class);
+		suite.addTestSuite(TestShortcutConfigAction.class);
 
-        // Common
-        suite.addTestSuite(TestDispatchForward.class);
-        suite.addTestSuite(TestLoginAction.class);
-        suite.addTestSuite(TestBaseCommonAction.class);
-        suite.addTestSuite(TestCurrentUserProfileAction.class);
-        suite.addTestSuite(TestShortcutConfigAction.class);
+		//API
+		//suite.addTestSuite(TestApiMethodFinderAction.class);
+		suite.addTestSuite(TestApiServiceFinderAction.class);
 
-        //API
-        //suite.addTestSuite(TestApiMethodFinderAction.class);
-        suite.addTestSuite(TestApiServiceFinderAction.class);
+		//Category
+		suite.addTestSuite(TestCategoryAction.class);
 
-        //Category
-        suite.addTestSuite(TestCategoryAction.class);
+		// Portal
+		suite.addTestSuite(TestPageAction.class);
+		suite.addTestSuite(TestPageConfigAction.class);
+		suite.addTestSuite(TestPageTreeAction.class);
+		suite.addTestSuite(TestWidgetsViewerAction.class);
+		suite.addTestSuite(TestWidgetTypeAction.class);
+		suite.addTestSuite(TestSimpleWidgetConfigAction.class);
+		suite.addTestSuite(TestNavigatorWidgetConfigAction.class);
+		suite.addTestSuite(TestPageModelFinderAction.class);
+		suite.addTestSuite(TestPageModelAction.class);
 
-        // Portal
-        suite.addTestSuite(TestPageAction.class);
-        suite.addTestSuite(TestPageConfigAction.class);
-        suite.addTestSuite(TestPageTreeAction.class);
-        suite.addTestSuite(TestWidgetsViewerAction.class);
-        suite.addTestSuite(TestWidgetTypeAction.class);
-        suite.addTestSuite(TestSimpleWidgetConfigAction.class);
-        suite.addTestSuite(TestNavigatorWidgetConfigAction.class);
-        suite.addTestSuite(TestPageModelFinderAction.class);
-        suite.addTestSuite(TestPageModelAction.class);
+		//Entity
+		suite.addTestSuite(TestEntityManagersAction.class);
 
-        //Entity
-        suite.addTestSuite(TestEntityManagersAction.class);
+		//Admin Area Manager
+		suite.addTestSuite(TestShortcutManager.class);
 
-        //Admin Area Manager
-        suite.addTestSuite(TestShortcutManager.class);
+		//User
+		suite.addTestSuite(TestUserAction.class);
+		suite.addTestSuite(TestUserAuthorizationAction.class);
+		suite.addTestSuite(TestUserFinderAction.class);
+		suite.addTestSuite(TestUserProfileAction.class);
+		suite.addTestSuite(TestUserProfileFinderAction.class);
 
-        //Group
-        suite.addTestSuite(TestGroupAction.class);
-        suite.addTestSuite(TestGroupFinderAction.class);
+		//Group
+		suite.addTestSuite(TestGroupAction.class);
+		suite.addTestSuite(TestGroupFinderAction.class);
 
-        //Role
-        suite.addTestSuite(TestRoleAction.class);
-        suite.addTestSuite(TestRoleFinderAction.class);
+		//Role
+		suite.addTestSuite(TestRoleAction.class);
+		suite.addTestSuite(TestRoleFinderAction.class);
 
-        //Activity Stream
-        suite.addTestSuite(TestSocialActivityStreamDAO.class);
-        suite.addTestSuite(TestActivityStream.class);
-        suite.addTestSuite(TestActivityStreamAction.class);
+		//Activity Stream
+		suite.addTestSuite(TestSocialActivityStreamDAO.class);
+		suite.addTestSuite(TestActivityStream.class);
+		suite.addTestSuite(TestActivityStreamAction.class);
 
-        //File Browser
-        suite.addTestSuite(TestFileBrowserAction.class);
+		//File Browser
+		suite.addTestSuite(TestFileBrowserAction.class);
 
-        //Fragment
-        suite.addTestSuite(TestGuiFragmentAction.class);
+		//Fragment
+		suite.addTestSuite(TestGuiFragmentAction.class);
 
-        // Data Object
-        suite.addTestSuite(TestDataObjectModelFinderAction.class);
-        suite.addTestSuite(TestDataObjectModelAction.class);
+		// Data Object
+		suite.addTestSuite(TestDataObjectModelFinderAction.class);
+		suite.addTestSuite(TestDataObjectModelAction.class);
 
-        return suite;
-    }
+		return suite;
+	}
 
 }

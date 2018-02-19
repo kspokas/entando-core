@@ -194,6 +194,4 @@ public class AllTests {
 		return suite;
 	}
 
-
-
 }

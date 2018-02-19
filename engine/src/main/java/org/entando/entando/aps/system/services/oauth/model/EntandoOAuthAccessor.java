@@ -11,23 +11,28 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
-package org.entando.entando.aps.system.services.userprofile.parse;
+package org.entando.entando.aps.system.services.oauth.model;
 
-import com.agiletec.aps.system.common.entity.parse.EntityTypeDOM;
+import java.util.Date;
+
+import net.oauth.OAuthConsumer;
 
 /**
  * @author E.Santoboni
  */
-public class UserProfileTypeDOM extends EntityTypeDOM {
-
-	@Override
-	protected String getEntityTypeRootElementName() {
-		return "profiletype";
+public class EntandoOAuthAccessor extends net.oauth.OAuthAccessor {
+	
+	public EntandoOAuthAccessor(OAuthConsumer consumer) {
+        super(consumer);
+    }
+	
+	public Date getLastAccess() {
+		return _lastAccess;
+	}
+	public void setLastAccess(Date lastAccess) {
+		this._lastAccess = lastAccess;
 	}
 	
-	@Override
-	protected String getEntityTypesRootElementName() {
-		return "profiletypes";
-	}
+	private Date _lastAccess;
 	
 }
