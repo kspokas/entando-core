@@ -5,7 +5,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-public class RestListRequest<T extends Filter> {
+public class RestListRequest {
 
     private String sort;
     private String direction;
@@ -13,13 +13,13 @@ public class RestListRequest<T extends Filter> {
     private Integer pageNum = 0;
     private Integer pageSize = 5;
 
-    private T[] filter;
+    private Filter[] filter;
 
-    public T[] getFilter() {
+    public Filter[] getFilter() {
         return filter;
     }
 
-    public void setFilter(T[] filter) {
+    public void setFilter(Filter[] filter) {
         this.filter = filter;
     }
 
@@ -55,7 +55,7 @@ public class RestListRequest<T extends Filter> {
         this.pageSize = pageSize;
     }
 
-    public void addFilter(T filter) {
+    public void addFilter(Filter filter) {
         this.filter = ArrayUtils.add(this.filter, filter);
     }
 

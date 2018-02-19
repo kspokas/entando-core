@@ -88,7 +88,7 @@ public class GroupServiceIntegrationTest extends BaseTestCase {
     @Test
     public void testGetGroups_filter() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        RestListRequest<Filter> restListRequest = new RestListRequest<Filter>();
+        RestListRequest restListRequest = new RestListRequest();
         restListRequest.addFilter(new Filter("groupname", "fr"));
 
         PagedMetadata<GroupDto> res = this.groupService.getGroups(restListRequest);

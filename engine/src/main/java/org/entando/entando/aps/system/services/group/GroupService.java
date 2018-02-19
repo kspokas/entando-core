@@ -13,6 +13,7 @@
  */
 package org.entando.entando.aps.system.services.group;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.agiletec.aps.system.common.model.dao.SearcherDaoPaginatedResult;
@@ -60,6 +61,10 @@ public class GroupService implements IGroupService {
     @Override
     public PagedMetadata<GroupDto> getGroups(RestListRequest restListReq) {
         try {
+            Arrays.stream(restListReq.getFieldSearchFilters())
+                  .filter(i -> i.getKey() != null)
+                  .forEach(i -> i.setKey(GroupDto.getEntityFieldName(i.getKey())));
+
             SearcherDaoPaginatedResult<Group> groups = this.getGroupManager().getGroups(restListReq.getFieldSearchFilters());
             List<GroupDto> dtoList = dtoBuilder.convert(groups.getList());
 
@@ -129,4 +134,7 @@ public class GroupService implements IGroupService {
         group.setDescription(groupRequest.getDescr());
         return group;
     }
+
+
+
 }
