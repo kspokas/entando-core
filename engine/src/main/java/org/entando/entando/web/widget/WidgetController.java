@@ -31,8 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class WidgetController {
 
-    //TODO check permissions
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
