@@ -27,7 +27,9 @@ import org.springframework.cache.concurrent.ConcurrentMapCache;
 
 import com.agiletec.aps.system.services.i18n.I18nManagerTest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class I18nManagerCacheWrapperTest {
 
@@ -44,12 +46,13 @@ public class I18nManagerCacheWrapperTest {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		ConcurrentMapCache fakeCache = new ConcurrentMapCache(CACHE_NAME);
+		Map<String, Object> fakeCache = new HashMap<String, Object>();
 		List<String> codes = new ArrayList<>();
 		codes.add(TEST_KEY);
 		fakeCache.put(I18nManagerCacheWrapper.I18N_CODES_CACHE_NAME, codes);
 		fakeCache.put(I18nManagerCacheWrapper.I18N_CACHE_NAME_PREFIX + TEST_KEY, I18nManagerTest.createLabel("ciao", "hello"));
-		when(springCacheManager.getCache(CACHE_NAME)).thenReturn(fakeCache);
+
+		cacheWrapper.setCache(fakeCache);
 	}
 
 	@Test(expected = CacheItemNotFoundException.class)

@@ -83,6 +83,10 @@ public class I18nManagerCacheWrapper extends AbstractGenericCacheWrapper<ApsProp
 		return this.cache;
 	}
 
+	public void setCache(Map<String, Object> cache ) {
+		this.cache = cache;
+	}
+
 	@Resource(name = "i18lnCache")
 	private Map<String, Object> cache;
 }
