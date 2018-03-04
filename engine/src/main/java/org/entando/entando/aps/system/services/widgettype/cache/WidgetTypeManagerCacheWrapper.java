@@ -18,6 +18,9 @@ import com.agiletec.aps.system.exception.ApsSystemException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.entando.entando.aps.system.services.widgettype.IWidgetTypeDAO;
 import org.entando.entando.aps.system.services.widgettype.WidgetType;
 import org.slf4j.Logger;
@@ -34,7 +37,7 @@ public class WidgetTypeManagerCacheWrapper extends AbstractGenericCacheWrapper<W
 	@Override
 	public void initCache(IWidgetTypeDAO widgetTypeDAO) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String,Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			Map<String, WidgetType> widgetTypes = widgetTypeDAO.loadWidgetTypes();
 			Iterator<WidgetType> iter = widgetTypes.values().iterator();
@@ -93,4 +96,11 @@ public class WidgetTypeManagerCacheWrapper extends AbstractGenericCacheWrapper<W
 		return WIDGET_TYPE_MANAGER_CACHE_NAME;
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "widgetTypeCache")
+	private Map<String, Object> cache;
 }

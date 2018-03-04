@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import com.agiletec.aps.system.common.AbstractGenericCacheWrapper;
 import com.agiletec.aps.system.exception.ApsSystemException;
 import com.agiletec.plugins.jacms.aps.system.services.contentmodel.ContentModel;
@@ -33,7 +35,7 @@ public class ContentModelManagerCacheWrapper extends AbstractGenericCacheWrapper
 	@Override
 	public void initCache(IContentModelDAO contentModelDao) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			Map<String, ContentModel> modelsMap = this.getModelsMap(contentModelDao);
 			super.insertObjectsOnCache(cache, modelsMap);
@@ -93,4 +95,11 @@ public class ContentModelManagerCacheWrapper extends AbstractGenericCacheWrapper
 		this.manage(String.valueOf(contentModel.getId()), contentModel, Action.DELETE);
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "contentModelCache")
+	private Map<String, Object> cache;
 }

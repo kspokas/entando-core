@@ -26,6 +26,33 @@
 		<property name="notifyManager" ref="NotifyManager" />
 	</bean>
 
+	<bean name="pageCache" class="java.util.LinkedHashMap"/>
+
+	<bean name="pageModelCache" class="java.util.LinkedHashMap"/>
+	<bean name="categoryCache" class="java.util.LinkedHashMap"/>
+	<bean name="widgetTypeCache" class="java.util.LinkedHashMap"/>
+	<bean name="configCache" class="java.util.LinkedHashMap"/>
+	<bean name="roleCache" class="java.util.LinkedHashMap"/>
+	<bean name="groupCache" class="java.util.LinkedHashMap"/>
+	<bean name="langCache" class="java.util.LinkedHashMap"/>
+	<bean name="cacheInfoCache" class="java.util.LinkedHashMap"/>
+	<bean name="i18lnCache" class="java.util.LinkedHashMap"/>
+	<bean name="userProfileCache" class="java.util.LinkedHashMap"/>
+	<bean name="initializerCache" class="java.util.LinkedHashMap"/>
+	<bean name="apiCatalogCache" class="java.util.LinkedHashMap"/>
+	<bean name="keyGeneratorCache" class="java.util.LinkedHashMap"/>
+	<bean name="dataObjectModelCache" class="java.util.LinkedHashMap"/>
+	<bean name="dataObjectMapperCache" class="java.util.LinkedHashMap"/>
+	<bean name="jacmsContentManagerCache" class="java.util.LinkedHashMap"/>
+	<bean name="contentModelCache" class="java.util.LinkedHashMap"/>
+	<bean name="contentPageMapperCache" class="java.util.LinkedHashMap"/>
+	<bean name="resourceManagerCache" class="java.util.LinkedHashMap"/>
+	<bean name="permissionCache" class="java.util.LinkedHashMap"/>
+	<bean name="entityCache" class="java.util.LinkedHashMap"/>
+
+	<bean name="contentMapperCache" class="java.util.LinkedHashMap"/>
+
+
 	<!-- SPRING OBJECT -->
 	<bean id="springCacheManager" class="org.springframework.cache.support.SimpleCacheManager">
 		<property name="caches">

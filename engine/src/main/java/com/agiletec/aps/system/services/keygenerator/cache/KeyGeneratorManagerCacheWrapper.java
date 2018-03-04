@@ -13,6 +13,10 @@
  */
 package com.agiletec.aps.system.services.keygenerator.cache;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import com.agiletec.aps.system.common.AbstractCacheWrapper;
 import com.agiletec.aps.system.services.keygenerator.IKeyGeneratorDAO;
 import org.slf4j.Logger;
@@ -31,7 +35,7 @@ public class KeyGeneratorManagerCacheWrapper extends AbstractCacheWrapper implem
 	@Override
 	public void initCache(IKeyGeneratorDAO keyGeneratorDAO) {
 		Integer value = keyGeneratorDAO.getUniqueKey();
-		Cache cache = this.getCache();
+		Map<String, Object> cache = this.getCache();
 		this.releaseCachedObjects(cache);
 		this.insertObjectsOnCache(cache, value);
 	}
@@ -46,13 +50,20 @@ public class KeyGeneratorManagerCacheWrapper extends AbstractCacheWrapper implem
 		this.insertObjectsOnCache(this.getCache(), value);
 	}
 
-	private void insertObjectsOnCache(Cache cache, Integer value) {
+	private void insertObjectsOnCache(Map<String, Object> cache, Integer value) {
 		cache.put(IKeyGeneratorManagerCacheWrapper.CURRENT_KEY, value);
 		logger.trace("current key is now {}", value);
 	}
 
-	private void releaseCachedObjects(Cache cache) {
-		cache.evict(IKeyGeneratorManagerCacheWrapper.CURRENT_KEY);
+	private void releaseCachedObjects(Map<String, Object> cache) {
+		cache.remove(IKeyGeneratorManagerCacheWrapper.CURRENT_KEY);
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "keyGeneratorCache")
+	private Map<String, Object> cache;
 }

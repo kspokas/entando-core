@@ -27,6 +27,9 @@ import org.springframework.cache.Cache;
 import com.agiletec.aps.system.common.AbstractGenericCacheWrapper;
 import com.agiletec.aps.system.exception.ApsSystemException;
 import java.util.ArrayList;
+
+import javax.annotation.Resource;
+
 import org.entando.entando.aps.system.services.api.IApiCatalogManager;
 
 public class ApiServiceCacheWrapper extends AbstractGenericCacheWrapper<ApiService> implements IApiServiceCacheWrapper {
@@ -41,7 +44,7 @@ public class ApiServiceCacheWrapper extends AbstractGenericCacheWrapper<ApiServi
 	@Override
 	public void initCache(Map<String, ApiResource> resources, IApiCatalogDAO apiCatalogDAO) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			List<ApiMethod> apiGETMethods = buildApiGetMethods(resources);
 			Map<String, ApiService> services = apiCatalogDAO.loadServices(apiGETMethods);
@@ -95,4 +98,11 @@ public class ApiServiceCacheWrapper extends AbstractGenericCacheWrapper<ApiServi
 		return APICATALOG_SERVICE_CACHE_NAME_PREFIX;
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "apiCatalogCache")
+	private Map<String, Object> cache;
 }

@@ -13,6 +13,10 @@
  */
 package org.entando.entando.aps.system.init.cache;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.entando.entando.aps.system.init.model.SystemInstallationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +37,7 @@ public class InitializerManagerCacheWrapper extends AbstractCacheWrapper impleme
 	@Override
 	public void initCache(SystemInstallationReport report) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			this.insertObjectsOnCache(cache, report);
 		} catch (Throwable t) {
@@ -42,12 +46,12 @@ public class InitializerManagerCacheWrapper extends AbstractCacheWrapper impleme
 		}
 	}
 
-	private void insertObjectsOnCache(Cache cache, SystemInstallationReport report) {
+	private void insertObjectsOnCache(Map<String, Object> cache, SystemInstallationReport report) {
 		cache.put(INITIALIZER_REPORT_CACHE_NAME, report);
 	}
 
-	protected void releaseCachedObjects(Cache cache) {
-		cache.evict(INITIALIZER_REPORT_CACHE_NAME);
+	protected void releaseCachedObjects(Map<String, Object> cache) {
+		cache.remove(INITIALIZER_REPORT_CACHE_NAME);
 		logger.trace("report entry evicted");
 	}
 
@@ -62,4 +66,11 @@ public class InitializerManagerCacheWrapper extends AbstractCacheWrapper impleme
 		logger.trace("report entry updated");
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "initializerCache")
+	private Map<String, Object> cache;
 }

@@ -15,6 +15,8 @@ package com.agiletec.aps.system.services.group.cache;
 
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
@@ -34,7 +36,7 @@ public class GroupManagerCacheWrapper extends AbstractGenericCacheWrapper<Group>
 	@Override
 	public void initCache(IGroupDAO groupDAO) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object>  cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			Map<String, Group> groups = groupDAO.loadGroups();
 			this.insertObjectsOnCache(cache, groups);
@@ -83,5 +85,13 @@ public class GroupManagerCacheWrapper extends AbstractGenericCacheWrapper<Group>
 	protected String getCacheName() {
 		return GROUP_MANAGER_CACHE_NAME;
 	}
+
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "groupCache")
+	private Map<String, Object> cache;
 
 }

@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 import org.slf4j.Logger;
@@ -40,7 +43,7 @@ public class ConfigManagerCacheWrapper extends AbstractCacheWrapper implements I
 	@Override
 	public void initCache(IConfigItemDAO configItemDAO, String version) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object>  cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			Map<String, String> configItems = configItemDAO.loadVersionItems(version);
 			String xmlParams = configItems.get(SystemConstants.CONFIG_ITEM_PARAMS);
@@ -69,27 +72,27 @@ public class ConfigManagerCacheWrapper extends AbstractCacheWrapper implements I
 		return params;
 	}
 
-	protected void releaseCachedObjects(Cache cache) {
+	protected void releaseCachedObjects(Map<String, Object> cache) {
 		this.releaseCachedObjects(cache, CONFIG_PARAMS_CODES_CACHE_NAME, CONFIG_PARAM_CACHE_NAME_PREFIX);
 		this.releaseCachedObjects(cache, CONFIG_ITEMS_CODES_CACHE_NAME, CONFIG_ITEM_CACHE_NAME_PREFIX);
 	}
 
-	private void releaseCachedObjects(Cache cache, String codesName, String codePrefix) {
+	private void releaseCachedObjects(Map<String, Object> cache, String codesName, String codePrefix) {
 		List<String> codes = (List<String>) this.get(cache, codesName, List.class);
 		if (null != codes) {
 			for (String code : codes) {
-				cache.evict(codePrefix + code);
+				cache.remove(codePrefix + code);
 			}
-			cache.evict(codesName);
+			cache.remove(codesName);
 		}
 	}
 
-	protected void insertObjectsOnCache(Cache cache, Map<String, String> configItems, Map<String, String> params) {
+	protected void insertObjectsOnCache(Map<String, Object>  cache, Map<String, String> configItems, Map<String, String> params) {
 		this.insertObjectsOnCache(cache, configItems, CONFIG_ITEMS_CODES_CACHE_NAME, CONFIG_ITEM_CACHE_NAME_PREFIX);
 		this.insertObjectsOnCache(cache, params, CONFIG_PARAMS_CODES_CACHE_NAME, CONFIG_PARAM_CACHE_NAME_PREFIX);
 	}
 
-	private void insertObjectsOnCache(Cache cache, Map<String, String> map, String codesCacheName, String codeCachePrefix) {
+	private void insertObjectsOnCache(Map<String, Object> cache, Map<String, String> map, String codesCacheName, String codeCachePrefix) {
 		List<String> codes = new ArrayList<>();
 		Iterator<String> iterator = map.keySet().iterator();
 		while (iterator.hasNext()) {
@@ -115,4 +118,11 @@ public class ConfigManagerCacheWrapper extends AbstractCacheWrapper implements I
 		return CONFIG_MANAGER_CACHE_NAME;
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "configCache")
+	private Map<String, Object> cache;
 }

@@ -15,6 +15,8 @@ package com.agiletec.aps.system.services.i18n.cache;
 
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
@@ -36,7 +38,7 @@ public class I18nManagerCacheWrapper extends AbstractGenericCacheWrapper<ApsProp
 	@Override
 	public void initCache(II18nDAO i18nDAO) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			Map<String, ApsProperties> labels = i18nDAO.loadLabelGroups();
 			this.insertObjectsOnCache(cache, labels);
@@ -76,4 +78,11 @@ public class I18nManagerCacheWrapper extends AbstractGenericCacheWrapper<ApsProp
 		return I18N_CACHE_NAME_PREFIX;
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "i18lnCache")
+	private Map<String, Object> cache;
 }

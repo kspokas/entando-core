@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import com.agiletec.aps.system.common.AbstractGenericCacheWrapper;
 import com.agiletec.aps.system.exception.ApsSystemException;
 import org.entando.entando.aps.system.services.dataobjectmodel.DataObjectModel;
@@ -33,7 +35,7 @@ public class DataObjectModelCacheWrapper extends AbstractGenericCacheWrapper<Dat
 	@Override
 	public void initCache(IDataObjectModelDAO dataObjectModelDAO) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			Map<String, DataObjectModel> modelsMap = this.getModelsMap(dataObjectModelDAO);
 			super.insertObjectsOnCache(cache, modelsMap);
@@ -93,4 +95,11 @@ public class DataObjectModelCacheWrapper extends AbstractGenericCacheWrapper<Dat
 		this.manage(String.valueOf(model.getId()), model, Action.DELETE);
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "dataObjectModelCache")
+	private Map<String, Object> cache;
 }

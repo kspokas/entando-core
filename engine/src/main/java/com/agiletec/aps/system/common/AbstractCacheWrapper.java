@@ -13,6 +13,8 @@
  */
 package com.agiletec.aps.system.common;
 
+import java.util.Map;
+
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
@@ -43,7 +45,7 @@ public abstract class AbstractCacheWrapper {
         return this.get(this.getCache(), name, requiredType);
     }
 
-    protected <T> T get(Cache cache, String name, Class<T> requiredType) {
+    protected <T> T get(Map<String, Object> cache, String name, Class<T> requiredType) {
         Object value = cache.get(name);
         if (value instanceof Cache.ValueWrapper) {
             value = ((Cache.ValueWrapper) value).get();
@@ -51,9 +53,7 @@ public abstract class AbstractCacheWrapper {
         return (T) value;
     }
 
-    protected Cache getCache() {
-        return this.getSpringCacheManager().getCache(this.getCacheName());
-    }
+    protected abstract Map<String, Object> getCache();
 
 
 }

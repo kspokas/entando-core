@@ -19,6 +19,9 @@ import com.agiletec.aps.system.services.pagemodel.IPageModelDAO;
 import com.agiletec.aps.system.services.pagemodel.PageModel;
 import java.util.Collection;
 import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
@@ -33,7 +36,7 @@ public class PageModelManagerCacheWrapper extends AbstractGenericCacheWrapper<Pa
 	@Override
 	public void initCache(IPageModelDAO pageModelDAO) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			Map<String, PageModel> models = pageModelDAO.loadModels();
 			this.insertObjectsOnCache(cache, models);
@@ -84,4 +87,11 @@ public class PageModelManagerCacheWrapper extends AbstractGenericCacheWrapper<Pa
 		return PAGE_MODEL_MANAGER_CACHE_NAME;
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "pageModelCache")
+	private Map<String, Object> cache;
 }

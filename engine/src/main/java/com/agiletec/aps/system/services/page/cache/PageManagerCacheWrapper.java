@@ -25,6 +25,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
@@ -42,7 +45,7 @@ public class PageManagerCacheWrapper extends AbstractCacheWrapper implements IPa
 		IPage newDraftRoot = null;
 		IPage newOnLineRoot = null;
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			List<PageRecord> pageRecordList = pageDao.loadPageRecords();
 			Map<String, IPage> newFullMap = new HashMap<String, IPage>(pageRecordList.size());
@@ -83,19 +86,19 @@ public class PageManagerCacheWrapper extends AbstractCacheWrapper implements IPa
 		}
 	}
 	
-	protected void releaseCachedObjects(Cache cache) {
+	protected void releaseCachedObjects(Map<String, Object> cache) {
 		List<String> codes = (List<String>) this.get(cache, PAGE_CODES_CACHE_NAME, List.class);
 		if (null != codes) {
 			for (int i = 0; i < codes.size(); i++) {
 				String code = codes.get(i);
-				cache.evict(DRAFT_PAGE_CACHE_NAME_PREFIX + code);
-				cache.evict(ONLINE_PAGE_CACHE_NAME_PREFIX + code);
+				cache.remove(DRAFT_PAGE_CACHE_NAME_PREFIX + code);
+				cache.remove(ONLINE_PAGE_CACHE_NAME_PREFIX + code);
 			}
-			cache.evict(PAGE_CODES_CACHE_NAME);
+			cache.remove(PAGE_CODES_CACHE_NAME);
 		}
 	}
 	
-	protected void insertObjectsOnCache(Cache cache, PagesStatus status, 
+	protected void insertObjectsOnCache(Map<String, Object> cache, PagesStatus status,
 			IPage newDraftRoot, IPage newOnLineRoot, List<IPage> pageListD, List<IPage> pageListO) {
 		cache.put(DRAFT_ROOT_CACHE_NAME, newDraftRoot);
 		cache.put(ONLINE_ROOT_CACHE_NAME, newOnLineRoot);
@@ -127,12 +130,12 @@ public class PageManagerCacheWrapper extends AbstractCacheWrapper implements IPa
 
 	@Override
 	public void deleteOnlinePage(String pageCode) {
-		this.getCache().evict(ONLINE_PAGE_CACHE_NAME_PREFIX + pageCode);
+		this.getCache().remove(ONLINE_PAGE_CACHE_NAME_PREFIX + pageCode);
 	}
 
 	@Override
 	public void deleteDraftPage(String pageCode) {
-		this.getCache().evict(DRAFT_PAGE_CACHE_NAME_PREFIX + pageCode);
+		this.getCache().remove(DRAFT_PAGE_CACHE_NAME_PREFIX + pageCode);
 	}
 
 	@Override
@@ -175,5 +178,12 @@ public class PageManagerCacheWrapper extends AbstractCacheWrapper implements IPa
 	protected String getCacheName() {
 		return PAGE_MANAGER_CACHE_NAME;
 	}
-	
+
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "pageCache")
+	private Map<String, Object> cache;
 }

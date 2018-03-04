@@ -31,17 +31,17 @@ public abstract class AbstractGenericCacheWrapper<O extends Object> extends Abst
 		ADD, UPDATE, DELETE
 	}
 
-	protected void releaseCachedObjects(Cache cache) {
+	protected void releaseCachedObjects(Map<String, Object>  cache) {
 		List<String> codes = (List<String>) this.get(cache, this.getCodesCacheKey(), List.class);
 		if (null != codes) {
 			for (String code : codes) {
-				cache.evict(this.getCacheKeyPrefix() + code);
+				cache.remove(this.getCacheKeyPrefix() + code);
 			}
-			cache.evict(this.getCodesCacheKey());
+			cache.remove(this.getCodesCacheKey());
 		}
 	}
 
-	protected void insertObjectsOnCache(Cache cache, Map<String, O> objects) {
+	protected void insertObjectsOnCache(Map<String, Object> cache, Map<String, O> objects) {
 		List<String> codes = new ArrayList<>();
 		Iterator<String> iter = objects.keySet().iterator();
 		while (iter.hasNext()) {
@@ -54,7 +54,7 @@ public abstract class AbstractGenericCacheWrapper<O extends Object> extends Abst
 
 	protected <O> Map<String, O> getObjectMap() {
 		Map<String, O> map = new HashMap<>();
-		Cache cache = this.getCache();
+		Map<String, Object> cache = this.getCache();
 		List<String> codes = (List<String>) this.get(cache, this.getCodesCacheKey(), List.class);
 		if (null != codes) {
 			for (String code : codes) {
@@ -80,7 +80,7 @@ public abstract class AbstractGenericCacheWrapper<O extends Object> extends Abst
 		if (null == object) {
 			return;
 		}
-		Cache cache = this.getCache();
+		Map<String, Object> cache = this.getCache();
 		List<String> codes = (List<String>) this.get(cache, this.getCodesCacheKey(), List.class);
 		if (Action.ADD.equals(operation)) {
 			if (!codes.contains(key)) {
@@ -90,12 +90,12 @@ public abstract class AbstractGenericCacheWrapper<O extends Object> extends Abst
 			cache.put(this.getCacheKeyPrefix() + key, object);
 		} else if (Action.UPDATE.equals(operation)) {
 			if (!codes.contains(key)) {
-				throw new CacheItemNotFoundException(key, cache.getName());
+				throw new CacheItemNotFoundException(key, this.getCacheName());
 			}
 			cache.put(this.getCacheKeyPrefix() + key, object);
 		} else if (Action.DELETE.equals(operation)) {
 			codes.remove(key);
-			cache.evict(this.getCacheKeyPrefix() + key);
+			cache.remove(this.getCacheKeyPrefix() + key);
 			cache.put(this.getCodesCacheKey(), codes);
 		}
 	}

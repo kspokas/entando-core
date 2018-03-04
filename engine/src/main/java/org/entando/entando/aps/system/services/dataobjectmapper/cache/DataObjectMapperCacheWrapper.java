@@ -13,6 +13,10 @@
  */
 package org.entando.entando.aps.system.services.dataobjectmapper.cache;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import com.agiletec.aps.system.common.AbstractCacheWrapper;
 import com.agiletec.aps.system.exception.ApsSystemException;
 import com.agiletec.aps.system.services.page.IPage;
@@ -82,4 +86,11 @@ public class DataObjectMapperCacheWrapper extends AbstractCacheWrapper implement
 		return IDataObjectMapperCacheWrapper.OBJECT_MAPPER_CACHE_NAME;
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "dataObjectMapperCache")
+	private Map<String, Object> cache;
 }

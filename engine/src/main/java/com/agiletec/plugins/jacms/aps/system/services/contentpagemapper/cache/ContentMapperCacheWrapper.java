@@ -13,6 +13,10 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.contentpagemapper.cache;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import com.agiletec.aps.system.common.AbstractCacheWrapper;
 import com.agiletec.aps.system.exception.ApsSystemException;
 import com.agiletec.aps.system.services.page.IPage;
@@ -81,5 +85,12 @@ public class ContentMapperCacheWrapper extends AbstractCacheWrapper implements I
 	protected String getCacheName() {
 		return IContentMapperCacheWrapper.CONTENT_MAPPER_CACHE_NAME;
 	}
-	
+
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "contentMapperCache")
+	private Map<String, Object> cache;
 }

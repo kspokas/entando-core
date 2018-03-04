@@ -27,6 +27,8 @@ import com.agiletec.aps.system.services.lang.LangDOM;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 /**
  * @author E.Santoboni
  */
@@ -37,7 +39,7 @@ public class LangManagerCacheWrapper extends AbstractGenericCacheWrapper<Lang> i
 	@Override
 	public void initCache(String xmlConfig) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			LangDOM langDom = new LangDOM(xmlConfig);
 			Map<String, Lang> langMap = new HashMap<>();
@@ -58,7 +60,7 @@ public class LangManagerCacheWrapper extends AbstractGenericCacheWrapper<Lang> i
 	@Override
 	public List<Lang> getLangs() {
 		List<Lang> langs = new ArrayList<>();
-		Cache cache = this.getCache();
+		Map<String, Object> cache = this.getCache();
 		List<String> codes = (List<String>) this.get(cache, LANG_CODES_CACHE_NAME, List.class);
 		if (null != codes) {
 			for (String code : codes) {
@@ -113,4 +115,11 @@ public class LangManagerCacheWrapper extends AbstractGenericCacheWrapper<Lang> i
 		return LANG_MANAGER_CACHE_NAME;
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "langCache")
+	private Map<String, Object> cache;
 }

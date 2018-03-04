@@ -15,6 +15,8 @@ package org.entando.entando.aps.system.services.api.cache;
 
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.entando.entando.aps.system.services.api.IApiCatalogDAO;
 import org.entando.entando.aps.system.services.api.model.ApiResource;
 import org.slf4j.Logger;
@@ -37,7 +39,7 @@ public class ApiResourceCacheWrapper extends AbstractGenericCacheWrapper<ApiReso
 	@Override
 	public void initCache(Map<String, ApiResource> resources, IApiCatalogDAO apiCatalogDAO) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			apiCatalogDAO.loadApiStatus(resources);
 			this.insertObjectsOnCache(cache, resources);
@@ -72,4 +74,11 @@ public class ApiResourceCacheWrapper extends AbstractGenericCacheWrapper<ApiReso
 		return APICATALOG_RESOURCE_CACHE_NAME_PREFIX;
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "apiCatalogCache")
+	private Map<String, Object> cache;
 }

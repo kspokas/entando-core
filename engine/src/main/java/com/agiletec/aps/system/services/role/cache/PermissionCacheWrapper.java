@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
@@ -37,7 +39,7 @@ public class PermissionCacheWrapper extends AbstractGenericCacheWrapper<Permissi
 	@Override
 	public void initCache(IPermissionDAO permissionDAO) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			Map<String, Permission> permissions = permissionDAO.loadPermissions();
 			this.insertObjectsOnCache(cache, permissions);
@@ -91,4 +93,11 @@ public class PermissionCacheWrapper extends AbstractGenericCacheWrapper<Permissi
 		return PERMISSION_CACHE_NAME_PREFIX;
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "permissionCache")
+	private Map<String, Object> cache;
 }

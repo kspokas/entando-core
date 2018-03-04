@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
@@ -39,7 +42,7 @@ public class CategoryManagerCacheWrapper extends AbstractCacheWrapper implements
 	public void initCache(ICategoryDAO categoryDAO, ILangManager langManager) throws ApsSystemException {
 		List<Category> categories = null;
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			categories = categoryDAO.loadCategories(langManager);
 			if (categories.isEmpty()) {
@@ -67,7 +70,7 @@ public class CategoryManagerCacheWrapper extends AbstractCacheWrapper implements
 		return root;
 	}
 
-	private void initCache(Cache cache, List<Category> categories) throws ApsSystemException {
+	private void initCache(Map<String, Object> cache, List<Category> categories) throws ApsSystemException {
 		Category root = null;
 		Map<String, Category> categoryMap = new HashMap<>();
 		for (Category cat : categories) {
@@ -89,18 +92,18 @@ public class CategoryManagerCacheWrapper extends AbstractCacheWrapper implements
 		this.insertObjectsOnCache(cache, root, categoryMap);
 	}
 
-	protected void releaseCachedObjects(Cache cache) {
+	protected void releaseCachedObjects(Map<String, Object> cache) {
 		List<String> codes = (List<String>) this.get(cache, CATEGORY_CODES_CACHE_NAME, List.class);
 		if (null != codes) {
 			for (String code : codes) {
-				cache.evict(CATEGORY_CACHE_NAME_PREFIX + code);
+				cache.remove(CATEGORY_CACHE_NAME_PREFIX + code);
 			}
-			cache.evict(CATEGORY_CODES_CACHE_NAME);
+			cache.remove(CATEGORY_CODES_CACHE_NAME);
 		}
-		cache.evict(CATEGORY_STATUS_CACHE_NAME);
+		cache.remove(CATEGORY_STATUS_CACHE_NAME);
 	}
 
-	protected void insertObjectsOnCache(Cache cache, Category root, Map<String, Category> categoryMap) {
+	protected void insertObjectsOnCache(Map<String, Object>  cache, Category root, Map<String, Category> categoryMap) {
 		cache.put(CATEGORY_ROOT_CACHE_NAME, root);
 		Iterator<Category> iter = categoryMap.values().iterator();
 		while (iter.hasNext()) {
@@ -116,7 +119,7 @@ public class CategoryManagerCacheWrapper extends AbstractCacheWrapper implements
 
 	@Override
 	public void deleteCategory(String code) {
-		this.getCache().evict(CATEGORY_CACHE_NAME_PREFIX + code);
+		this.getCache().remove(CATEGORY_CACHE_NAME_PREFIX + code);
 	}
 
 	@Override
@@ -143,5 +146,13 @@ public class CategoryManagerCacheWrapper extends AbstractCacheWrapper implements
 		statusMap.put(beanName, status);
 		this.getCache().put(CATEGORY_STATUS_CACHE_NAME, statusMap);
 	}
+
+	@Override
+	protected Map<String, Object> getCache() {
+		return cache;
+	}
+
+	@Resource(name = "categoryCache")
+	private Map<String, Object> cache;
 
 }

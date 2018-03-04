@@ -13,6 +13,10 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.resource.cache;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import com.agiletec.aps.system.common.AbstractCacheWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +32,7 @@ public class ResourceManagerCacheWrapper extends AbstractCacheWrapper implements
 
     @Override
     public Integer getStatus() {
-        return this.getCache().get(CACHE_NAME_PREFIX, Integer.class);
+        return (Integer)this.getCache().get(CACHE_NAME_PREFIX);
     }
 
     @Override
@@ -42,4 +46,11 @@ public class ResourceManagerCacheWrapper extends AbstractCacheWrapper implements
         return CACHE_NAME;
     }
 
+    @Override
+    protected Map<String, Object> getCache() {
+        return this.cache;
+    }
+
+    @Resource(name = "resourceManagerCache")
+    private Map<String, Object> cache;
 }

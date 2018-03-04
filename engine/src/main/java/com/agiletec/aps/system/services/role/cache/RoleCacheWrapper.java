@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
@@ -37,7 +39,7 @@ public class RoleCacheWrapper extends AbstractGenericCacheWrapper<Role> implemen
 	@Override
 	public void initCache(IRoleDAO roleDAO) throws ApsSystemException {
 		try {
-			Cache cache = this.getCache();
+			Map<String, Object> cache = this.getCache();
 			this.releaseCachedObjects(cache);
 			Map<String, Role> roles = roleDAO.loadRoles();
 			this.insertObjectsOnCache(cache, roles);
@@ -88,4 +90,11 @@ public class RoleCacheWrapper extends AbstractGenericCacheWrapper<Role> implemen
 		return IRoleManager.ROLE_MANAGER_CACHE_NAME;
 	}
 
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "roleCache")
+	private Map<String, Object> cache;
 }

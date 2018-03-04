@@ -16,6 +16,8 @@ package com.agiletec.aps.system.common.entity.cache;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import com.agiletec.aps.system.common.AbstractCacheWrapper;
 import com.agiletec.aps.system.common.entity.IEntityManager;
 import com.agiletec.aps.system.exception.ApsSystemException;
@@ -44,7 +46,7 @@ public class EntityManagerCacheWrapper extends AbstractCacheWrapper implements I
 
 	@Override
 	public void updateEntityTypeStatus(String typeCode, Integer state) {
-		Cache cache = this.getCache();
+		Map<String, Object> cache = this.getCache();
 		Map<String, Integer> status = this.get(cache, IEntityManagerCacheWrapper.ENTITY_STATUS_CACHE_NAME, Map.class);
 		if (null == status) {
 			status = new HashMap<>();
@@ -66,4 +68,12 @@ public class EntityManagerCacheWrapper extends AbstractCacheWrapper implements I
 		this.entityManagerName = entityManagerName;
 	}
 
+
+	@Override
+	protected Map<String, Object> getCache() {
+		return this.cache;
+	}
+
+	@Resource(name = "entityCache")
+	private Map<String, Object> cache;
 }
